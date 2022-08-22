@@ -1,0 +1,9 @@
+C:/Martin/GIT/UHA_COMMON/Src/COM.c:35:6:COM_Init	16	static
+C:/Martin/GIT/UHA_COMMON/Src/COM.c:40:9:COM_GetNodeStatus	16	static
+C:/Martin/GIT/UHA_COMMON/Src/COM.c:52:9:COM_GetNetworkStatus	16	static
+C:/Martin/GIT/UHA_COMMON/Src/COM.c:67:9:COM_GetRxMessage	16	static
+C:/Martin/GIT/UHA_COMMON/Src/COM.c:72:6:COM_Update_10ms	16	static
+C:/Martin/GIT/UHA_COMMON/Src/COM.c:96:6:COM_SendVariable	16	static
+C:/Martin/GIT/UHA_COMMON/Src/COM.c:101:6:COM_SendMessage	16	static
+C:/Martin/GIT/UHA_COMMON/Src/COM.c:107:6:COM_AddStreamedVariable	24	static
+C:/Martin/GIT/UHA_COMMON/Src/COM.c:146:13:SendVariable	32	static

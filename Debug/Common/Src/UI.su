@@ -1,0 +1,9 @@
+C:/Martin/GIT/UHA_COMMON/Src/UI.c:36:6:UI_Init	40	static
+C:/Martin/GIT/UHA_COMMON/Src/UI.c:76:6:UI_Struct_Initialisation	32	static
+C:/Martin/GIT/UHA_COMMON/Src/UI.c:84:6:UI_Update_10ms	8	static
+C:/Martin/GIT/UHA_COMMON/Src/UI.c:96:6:UI_LED_R_SetMode	16	static
+C:/Martin/GIT/UHA_COMMON/Src/UI.c:105:6:UI_LED_G_SetMode	16	static
+C:/Martin/GIT/UHA_COMMON/Src/UI.c:114:6:UI_LED_B_SetMode	16	static
+C:/Martin/GIT/UHA_COMMON/Src/UI.c:123:6:UI_LED_Life_SetMode	16	static
+C:/Martin/GIT/UHA_COMMON/Src/UI.c:132:6:UI_Buzzer_SetMode	16	static
+C:/Martin/GIT/UHA_COMMON/Src/UI.c:146:13:UI_Control	16	static

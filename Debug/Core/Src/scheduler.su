@@ -1,0 +1,12 @@
+../Core/Src/scheduler.c:62:6:Scheduler_Init	4	static
+../Core/Src/scheduler.c:79:6:Scheduler_Update_1ms	8	static
+../Core/Src/scheduler.c:97:20:Timer_Increment	16	static
+../Core/Src/scheduler.c:113:6:Scheduler_Check_Flag	8	static
+../Core/Src/scheduler.c:171:13:Timer_Task_1ms	4	static
+../Core/Src/scheduler.c:183:13:Timer_Task_5ms	8	static
+../Core/Src/scheduler.c:195:13:Timer_Task_10ms	8	static
+../Core/Src/scheduler.c:208:13:Timer_Task_50ms	4	static
+../Core/Src/scheduler.c:219:13:Timer_Task_100ms	8	static
+../Core/Src/scheduler.c:232:13:Timer_Task_250ms	4	static
+../Core/Src/scheduler.c:243:13:Timer_Task_500ms	4	static
+../Core/Src/scheduler.c:255:13:Timer_Task_1s	8	static

@@ -1,0 +1,8 @@
+C:/Martin/GIT/UHA_COMMON/Src/ELM.c:18:6:ELM_Init	16	static
+C:/Martin/GIT/UHA_COMMON/Src/ELM.c:28:6:ELM_AddMeter	16	static
+C:/Martin/GIT/UHA_COMMON/Src/ELM.c:41:6:ELM_Update_1s	24	static
+C:/Martin/GIT/UHA_COMMON/Src/ELM.c:69:10:ELM_GetConsumptionWh	16	static
+C:/Martin/GIT/UHA_COMMON/Src/ELM.c:82:10:ELM_GetPowerW	16	static
+C:/Martin/GIT/UHA_COMMON/Src/ELM.c:92:6:ELM_ResetConsumption	16	static
+C:/Martin/GIT/UHA_COMMON/Src/ELM.c:101:6:ELM_ResetAllConsumptions	16	static
+C:/Martin/GIT/UHA_COMMON/Src/ELM.c:113:6:ELM_ExtiCallback	32	static
