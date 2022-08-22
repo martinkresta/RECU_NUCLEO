@@ -1,0 +1,9 @@
+# object files/ etc
+Debug/
+*.d
+*.o
+*.su
+*.bin
+*.elf
+*.map
+*.bak
