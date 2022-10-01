@@ -7,3 +7,6 @@ Debug/
 *.elf
 *.map
 *.bak
+*.o
+*.su
+*.su

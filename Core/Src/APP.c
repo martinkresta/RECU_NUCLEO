@@ -18,14 +18,20 @@
 #include "COM.h"
 #include "RTC.h"
 #include "watchdog.h"
+#include "SENSIRION.h"
 
 // local routines
 static void ProcessMessage(s_CanRxMsg* msg);
+
+
+sI2cSensor mSht;
 
 // public methods
 void APP_Init(void)
 {
 	sUIHwInit uihw;
+
+
 	Scheduler_Init();
 	OW_Init();
 	TEMP_Init();
@@ -75,17 +81,31 @@ void APP_Init(void)
 	// default sensor assignment:
 	TEMP_AssignSensor(T305, VAR_TEMP_RECU_WC, 0);
 	TEMP_AssignSensor(T309, VAR_TEMP_RECU_WH, 0);
+	TEMP_AssignSensor(T115, VAR_TEMP_RECU_FC, 0);
+	TEMP_AssignSensor(T116, VAR_TEMP_RECU_FH, 0);
 
 	/* Configure CAN streamed variables */
 
 	COM_AddStreamedVariable(VAR_TEMP_RECU_WC, 3000);
 	COM_AddStreamedVariable(VAR_TEMP_RECU_WH, 3000);
+	COM_AddStreamedVariable(VAR_TEMP_RECU_FC, 3000);
+	COM_AddStreamedVariable(VAR_TEMP_RECU_FH, 3000);
 
 
 
 	/*configure elmeters*/
 
 //	ELM_AddMeter(ELM_OTHER, EL1_Pin, VAR_CONS_OTHER_WH);
+
+	/*configure I2c sensors*  */
+
+
+
+	mSht.BusHandle = &hi2c1;
+	mSht.Id = 1;
+	mSht.Type = st_SHT4x;
+
+
 
 }
 
@@ -110,11 +130,7 @@ void APP_Update_1s(void)
 
 	static uint8_t dayNumber = 0;
 	uint8_t newDayNumber = 0;
-	int16_t consKitchen;
-	int16_t powKitchen;
-	uint16_t invalid;
 	sDateTime now = RTC_GetTime();
-	uint16_t pumpPeriod;
 	newDayNumber = now.Day;
 	if (dayNumber != newDayNumber)
 	{
@@ -123,10 +139,14 @@ void APP_Update_1s(void)
 	}
 
 
-	  if (GPIO_PIN_RESET == HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin))
-	  {
-	     UI_LED_Life_SetMode(eUI_BLINKING_SLOW);
-	  }
+  if (GPIO_PIN_RESET == HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin))
+  {
+     UI_LED_Life_SetMode(eUI_BLINKING_SLOW);
+  }
+
+
+  int16_t rh = SENS_ReadSensor(&mSht);
+
 
 }
 

@@ -266,7 +266,7 @@ static void Timer_Task_1s(void)
 		{
 			OW_ConvertAll();
 	  }*/
-//	OW_ReadRom();
+	//OW_ReadRom(0);
 	//OW_Read(0);
 	//OW_ConvertAll();
 }

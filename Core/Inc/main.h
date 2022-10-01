@@ -40,6 +40,10 @@ extern "C" {
    extern CAN_HandleTypeDef hcan1;
    extern IWDG_HandleTypeDef hiwdg;
    extern RTC_HandleTypeDef hrtc;
+   extern I2C_HandleTypeDef hi2c1;
+   extern TIM_HandleTypeDef htim1;
+   extern TIM_HandleTypeDef htim6;
+   extern UART_HandleTypeDef huart2;
 
 /* USER CODE END ET */
 

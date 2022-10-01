@@ -38,7 +38,8 @@ Core/Src/APP.o: ../Core/Src/APP.c ../Core/Inc/APP.h ../Core/Inc/main.h \
  ../../UHA_COMMON/Inc/UI.h ../../UHA_COMMON/Inc/OW.h \
  ../../UHA_COMMON/Inc/TEMP.h ../../UHA_COMMON/Inc/VARS.h \
  ../../UHA_COMMON/Inc/COM.h ../../UHA_COMMON/Inc/MCAN.h \
- ../../UHA_COMMON/Inc/RTC.h ../../UHA_COMMON/Inc/watchdog.h
+ ../../UHA_COMMON/Inc/RTC.h ../../UHA_COMMON/Inc/watchdog.h \
+ ../../UHA_COMMON/Inc/SENSIRION.h
 ../Core/Inc/APP.h:
 ../Core/Inc/main.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:
@@ -87,3 +88,4 @@ Core/Src/APP.o: ../Core/Src/APP.c ../Core/Inc/APP.h ../Core/Inc/main.h \
 ../../UHA_COMMON/Inc/MCAN.h:
 ../../UHA_COMMON/Inc/RTC.h:
 ../../UHA_COMMON/Inc/watchdog.h:
+../../UHA_COMMON/Inc/SENSIRION.h:
