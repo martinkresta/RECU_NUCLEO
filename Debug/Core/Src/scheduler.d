@@ -37,7 +37,8 @@ Core/Src/scheduler.o: ../Core/Src/scheduler.c ../Core/Inc/scheduler.h \
  ../../UHA_COMMON/Inc/TEMP.h ../../UHA_COMMON/Inc/MCAN.h \
  ../../UHA_COMMON/Inc/circbuf.h ../../UHA_COMMON/Inc/COM.h \
  ../../UHA_COMMON/Inc/MCAN.h ../Core/Inc/APP.h \
- ../../UHA_COMMON/Inc/GEST.h ../Core/Inc/app.h ../../UHA_COMMON/Inc/ELM.h
+ ../../UHA_COMMON/Inc/GEST.h ../Core/Inc/app.h ../../UHA_COMMON/Inc/ELM.h \
+ ../../UHA_COMMON/Inc/SENSIRION.h
 ../Core/Inc/scheduler.h:
 ../Core/Inc/main.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:
@@ -86,3 +87,4 @@ Core/Src/scheduler.o: ../Core/Src/scheduler.c ../Core/Inc/scheduler.h \
 ../../UHA_COMMON/Inc/GEST.h:
 ../Core/Inc/app.h:
 ../../UHA_COMMON/Inc/ELM.h:
+../../UHA_COMMON/Inc/SENSIRION.h:

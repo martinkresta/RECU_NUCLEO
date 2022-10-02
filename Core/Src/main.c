@@ -55,7 +55,7 @@ UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 
-uint8_t fan_pct = 20;
+
 
 /* USER CODE END PV */
 

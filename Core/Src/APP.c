@@ -26,6 +26,10 @@ static void ProcessMessage(s_CanRxMsg* msg);
 
 sI2cSensor mSht;
 
+TIM_OC_InitTypeDef mPWM;
+
+uint8_t mFanPct = 20;
+
 // public methods
 void APP_Init(void)
 {
@@ -106,6 +110,18 @@ void APP_Init(void)
 	mSht.Type = st_SHT4x;
 
 
+	SENS_Init();
+
+  mPWM.OCMode = TIM_OCMODE_PWM1;
+  mPWM.Pulse = 200;
+  mPWM.OCPolarity = TIM_OCPOLARITY_HIGH;
+  mPWM.OCNPolarity = TIM_OCNPOLARITY_HIGH;
+  mPWM.OCFastMode = TIM_OCFAST_DISABLE;
+  mPWM.OCIdleState = TIM_OCIDLESTATE_RESET;
+  mPWM.OCNIdleState = TIM_OCNIDLESTATE_RESET;
+
+
+	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
 
 }
 
@@ -123,6 +139,8 @@ void APP_Start(void)
 				ProcessMessage(&rmsg);
 		}
 	}
+
+
 }
 
 void APP_Update_1s(void)
@@ -142,6 +160,22 @@ void APP_Update_1s(void)
   if (GPIO_PIN_RESET == HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin))
   {
      UI_LED_Life_SetMode(eUI_BLINKING_SLOW);
+
+     mFanPct += 5;
+     if(mFanPct >= 100)
+     {
+       mFanPct = 0;
+     }
+     mPWM.Pulse = mFanPct * 10;
+
+     HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);
+
+     if (HAL_TIM_PWM_ConfigChannel(&htim1, &mPWM, TIM_CHANNEL_1) != HAL_OK)
+      {
+        Error_Handler();
+      }
+
+     HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
   }
 
 
