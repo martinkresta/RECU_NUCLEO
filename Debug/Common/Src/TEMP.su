@@ -1,4 +1,4 @@
 C:/Martin/GIT/UHA_COMMON/Src/TEMP.c:79:6:TEMP_Init	4	static
-C:/Martin/GIT/UHA_COMMON/Src/TEMP.c:88:6:TEMP_Update100ms	16	static
-C:/Martin/GIT/UHA_COMMON/Src/TEMP.c:156:9:TEMP_AddHwBus	24	static
-C:/Martin/GIT/UHA_COMMON/Src/TEMP.c:173:9:TEMP_AssignSensor	16	static
+C:/Martin/GIT/UHA_COMMON/Src/TEMP.c:88:6:TEMP_Update100ms	24	static
+C:/Martin/GIT/UHA_COMMON/Src/TEMP.c:145:9:TEMP_AddHwBus	24	static
+C:/Martin/GIT/UHA_COMMON/Src/TEMP.c:162:9:TEMP_AssignSensor	16	static

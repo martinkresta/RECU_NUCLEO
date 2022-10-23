@@ -122,6 +122,7 @@ void APP_Init(void)
 
 
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
 
 }
 
@@ -176,6 +177,15 @@ void APP_Update_1s(void)
       }
 
      HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+
+     HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_2);
+
+     if (HAL_TIM_PWM_ConfigChannel(&htim1, &mPWM, TIM_CHANNEL_2) != HAL_OK)
+      {
+        Error_Handler();
+      }
+
+     HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
   }
 
 
