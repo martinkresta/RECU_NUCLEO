@@ -96,7 +96,7 @@ void APP_Init(void)
 	COM_AddStreamedVariable(VAR_TEMP_RECU_FH, 3000);
 
 	COM_AddStreamedVariable(VAR_RH_RECU_FH, 3000);
-	COM_AddStreamedVariable(VAR_RH_RECU_FC, 3000);
+	COM_AddStreamedVariable(VAR_RH_RECU_WH, 3000);
 
 	COM_AddStreamedVariable(VAR_CO2_RECU, 3000);
   COM_AddStreamedVariable(VAR_DP_RECU_F, 3000);
@@ -135,6 +135,10 @@ void APP_Init(void)
 
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
+
+	mFanPct = 20;
+	VAR_SetVariable(VAR_RECU_FAN_F, mFanPct,1);
+	VAR_SetVariable(VAR_RECU_FAN_W, mFanPct,1);
 
 }
 
