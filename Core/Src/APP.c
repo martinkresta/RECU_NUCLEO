@@ -95,6 +95,18 @@ void APP_Init(void)
 	COM_AddStreamedVariable(VAR_TEMP_RECU_FC, 3000);
 	COM_AddStreamedVariable(VAR_TEMP_RECU_FH, 3000);
 
+	COM_AddStreamedVariable(VAR_RH_RECU_FH, 3000);
+	COM_AddStreamedVariable(VAR_RH_RECU_FC, 3000);
+
+	COM_AddStreamedVariable(VAR_CO2_RECU, 3000);
+  COM_AddStreamedVariable(VAR_DP_RECU_F, 3000);
+  COM_AddStreamedVariable(VAR_DP_RECU_W, 3000);
+
+
+  COM_AddStreamedVariable(VAR_RECU_FAN_F, 3000);
+  COM_AddStreamedVariable(VAR_RECU_FAN_W, 3000);
+  //COM_AddStreamedVariable(VAR_CURR_RECU_A, 3000);
+
 
 
 	/*configure elmeters*/
@@ -167,6 +179,10 @@ void APP_Update_1s(void)
      {
        mFanPct = 0;
      }
+
+     VAR_SetVariable(VAR_RECU_FAN_F, mFanPct,1);
+     VAR_SetVariable(VAR_RECU_FAN_W, mFanPct,1);
+
      mPWM.Pulse = mFanPct * 10;
 
      HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);
