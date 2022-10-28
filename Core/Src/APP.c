@@ -84,7 +84,7 @@ void APP_Init(void)
 	// assign sensors on OW1 :
 	// default sensor assignment:
 	TEMP_AssignSensor(T305, VAR_TEMP_RECU_WC, 0);
-	TEMP_AssignSensor(T309, VAR_TEMP_RECU_WH, 0);
+	//TEMP_AssignSensor(T309, VAR_TEMP_RECU_WH, 0);
 	TEMP_AssignSensor(T115, VAR_TEMP_RECU_FC, 0);
 	TEMP_AssignSensor(T116, VAR_TEMP_RECU_FH, 0);
 
