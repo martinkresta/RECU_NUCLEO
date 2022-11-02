@@ -19,12 +19,13 @@
 #include "RTC.h"
 #include "watchdog.h"
 #include "SENSIRION.h"
+#include "RECON.h"
 
 // local routines
 static void ProcessMessage(s_CanRxMsg* msg);
 
 
-sI2cSensor mSht;
+sI2cSensor mSS;
 
 TIM_OC_InitTypeDef mPWM;
 
@@ -42,7 +43,9 @@ void APP_Init(void)
 	VAR_Init();
 	MCAN_Init(&hcan1, THIS_NODE);
 	COM_Init(THIS_NODE);
+	SENS_Init();
 	WDG_Init(3000);
+	RECON_Init();
 
 
   /*Assign pins for onboard UI  */
@@ -81,12 +84,58 @@ void APP_Init(void)
 	// define hardware OW busses
 	TEMP_AddHwBus(0,OW1_GPIO_Port, OW1_Pin);
 
-	// assign sensors on OW1 :
+	// assign TEMP sensors on OW1 :
 	// default sensor assignment:
 	TEMP_AssignSensor(T305, VAR_TEMP_RECU_WC, 0);
 	//TEMP_AssignSensor(T309, VAR_TEMP_RECU_WH, 0);
 	TEMP_AssignSensor(T115, VAR_TEMP_RECU_FC, 0);
-	TEMP_AssignSensor(T116, VAR_TEMP_RECU_FH, 0);
+	//TEMP_AssignSensor(T116, VAR_TEMP_RECU_FH, 0);
+
+
+	/* assign SENSIRION sensors  */
+
+  // I2C1
+  //DP Fresh
+  mSS.BusHandle = &hi2c1;
+  mSS.Id = 1;
+  mSS.Type = st_SDP810_125;
+  mSS.VarId_1 = VAR_DP_RECU_F;
+  SENS_AddSensor(mSS);
+
+  // CO2 waste hot
+  mSS.BusHandle = &hi2c1;
+  mSS.Id = 2;
+  mSS.Type = st_SCD4x;
+  mSS.VarId_1 = VAR_CO2_RECU;
+  SENS_AddSensor(mSS);
+
+  // RH + Temp waste hot
+  mSS.BusHandle = &hi2c1;
+  mSS.Id = 4;
+  mSS.Type = st_SHT4x;
+  mSS.VarId_1 = VAR_TEMP_RECU_WH;
+  mSS.VarId_2 = VAR_RH_RECU_WH;
+  SENS_AddSensor(mSS);
+
+
+  // I2C2
+  //DP Waste
+  mSS.BusHandle = &hi2c2;
+  mSS.Id = 3;
+  mSS.Type = st_SDP810_125;
+  mSS.VarId_1 = VAR_DP_RECU_W;
+  SENS_AddSensor(mSS);
+
+
+  // RH + Temp fresh  hot
+  mSS.BusHandle = &hi2c2;
+  mSS.Id = 0;
+  mSS.Type = st_SHT4x;
+  mSS.VarId_1 = VAR_TEMP_RECU_FH;
+  mSS.VarId_2 = VAR_RH_RECU_FH;
+  SENS_AddSensor(mSS);
+
+
 
 	/* Configure CAN streamed variables */
 
@@ -113,32 +162,6 @@ void APP_Init(void)
 
 //	ELM_AddMeter(ELM_OTHER, EL1_Pin, VAR_CONS_OTHER_WH);
 
-	/*configure I2c sensors*  */
-
-
-
-	mSht.BusHandle = &hi2c1;
-	mSht.Id = 1;
-	mSht.Type = st_SHT4x;
-
-
-	SENS_Init();
-
-  mPWM.OCMode = TIM_OCMODE_PWM1;
-  mPWM.Pulse = 200;
-  mPWM.OCPolarity = TIM_OCPOLARITY_HIGH;
-  mPWM.OCNPolarity = TIM_OCNPOLARITY_HIGH;
-  mPWM.OCFastMode = TIM_OCFAST_DISABLE;
-  mPWM.OCIdleState = TIM_OCIDLESTATE_RESET;
-  mPWM.OCNIdleState = TIM_OCNIDLESTATE_RESET;
-
-
-	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
-	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
-
-	mFanPct = 20;
-	VAR_SetVariable(VAR_RECU_FAN_F, mFanPct,1);
-	VAR_SetVariable(VAR_RECU_FAN_W, mFanPct,1);
 
 }
 
@@ -162,7 +185,6 @@ void APP_Start(void)
 
 void APP_Update_1s(void)
 {
-
 	static uint8_t dayNumber = 0;
 	uint8_t newDayNumber = 0;
 	sDateTime now = RTC_GetTime();
@@ -174,9 +196,8 @@ void APP_Update_1s(void)
 	}
 
 
-  if (GPIO_PIN_RESET == HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin))
+ /* if (GPIO_PIN_RESET == HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin))
   {
-     UI_LED_Life_SetMode(eUI_BLINKING_SLOW);
 
      mFanPct += 5;
      if(mFanPct >= 100)
@@ -206,11 +227,7 @@ void APP_Update_1s(void)
       }
 
      HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
-  }
-
-
-  int16_t rh = SENS_ReadSensor(&mSht);
-
+  }*/
 
 }
 

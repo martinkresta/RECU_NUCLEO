@@ -15,6 +15,7 @@
 #include "GEST.h"
 #include "ELM.h"
 #include "SENSIRION.h"
+#include "RECON.h"
 
 /*************************
 	V A R I A B L E 
@@ -258,6 +259,7 @@ static void Timer_Task_1s(void)
 	APP_Update_1s();
 	WDG_Refresh();
 	SENS_Update_1s();
+	RECON_Update_1s();
 
 	//LED_Error_SetMode(eLED_BLINK_ONCE);
 /*	if(DI_Get(IN18) == eDI_HI)
