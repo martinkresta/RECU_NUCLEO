@@ -14,10 +14,9 @@
 
 static TIM_OC_InitTypeDef mPWM;
 
-static uint8_t  mFanInPct;
-static uint8_t mFanOutPct;
-
-static uint8_t mFansPct;
+static uint16_t  mFanInPct;
+static uint16_t mFanOutPct;
+static uint16_t mFansPct;
 
 static uint32_t mActionTimer;
 
@@ -45,7 +44,7 @@ void RECON_Init(void)
 void RECON_Update_1s(void)
 {
   int16_t input_temp, co2 ,soc;
-  uint8_t fan_limit, invalid ;
+  uint16_t fan_limit, invalid ;
 
   mActionTimer++;
 
@@ -76,7 +75,7 @@ void RECON_Update_1s(void)
   }
 
   // check freezing condition
-  if(soc < LOW_SOC_THRESHOLD)
+  if(input_temp < (ANTIFREEZE_TEMP*10))
   {
     SetFanPct(FAN_IN,0);
     SetFanPct(FAN_OUT,15);
@@ -85,7 +84,7 @@ void RECON_Update_1s(void)
 
 
   // check CO2
-  if(mActionTimer > MIN_ACTION_TIME_S)
+ /* if(mActionTimer > MIN_ACTION_TIME_S)
   {
     if(co2 > CO2_MAX_TARGET)
     {
@@ -99,7 +98,21 @@ void RECON_Update_1s(void)
       mFanOutPct -= 5;
       mActionTimer = 0;
     }
+  }*/
+
+  if(co2 > 600)
+  {
+    mFansPct = (co2 - 600) / 10;
   }
+  else
+  {
+    mFansPct = 10;
+  }
+
+
+  mFanOutPct = mFansPct;
+  mFanInPct = (mFansPct * 9) / 10;
+
 
   // range check
 

@@ -19,9 +19,9 @@
 #define  FAN_MAX_DAY        50
 #define  FAN_MIN            10
 
-#define  ANTIFREEZE_TEMP    0
+#define  ANTIFREEZE_TEMP    -1
 #define  LOW_SOC_THRESHOLD  40
-#define  MIN_ACTION_TIME_S  1800
+#define  MIN_ACTION_TIME_S  900
 
 
 #define FAN_IN            0
