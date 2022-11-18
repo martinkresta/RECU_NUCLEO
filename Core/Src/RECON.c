@@ -20,6 +20,8 @@ static uint16_t mFansPct;
 
 static uint32_t mActionTimer;
 
+static uint8_t mManualControl;
+
 
 
 void SetFanPct(uint8_t Fan, uint8_t pct);
@@ -39,11 +41,12 @@ void RECON_Init(void)
   mFanOutPct = 30;
   SetFanPct(FAN_IN,mFanInPct);
   SetFanPct(FAN_OUT,mFanOutPct);
+  mManualControl = 0;
 }
 
 void RECON_Update_1s(void)
 {
-  int16_t input_temp, co2 ,soc;
+  int16_t fc_temp, wc_temp, co2 ,soc, dumping_factor;
   uint16_t fan_limit, invalid ;
 
   mActionTimer++;
@@ -55,18 +58,20 @@ void RECON_Update_1s(void)
 
   // collect the variables
   invalid = 0;
-  input_temp = VAR_GetVariable(VAR_TEMP_RECU_FC,&invalid);  // input fresh air
-  co2 = VAR_GetVariable(VAR_CO2_RECU, &invalid);
+  fc_temp = VAR_GetVariable(VAR_TEMP_RECU_FC,&invalid);  // input fresh air
+  wc_temp = VAR_GetVariable(VAR_TEMP_RECU_WC,&invalid);  // input fresh air
   soc  = VAR_GetVariable(VAR_BAT_SOC,&invalid);     // battery soc
 
-
-  if(invalid)
+  if(invalid)  // safety configuration in case some critical inputs are not valid
   {
-    // TBD
-    return;
+    SetFanPct(FAN_IN,0);
+    SetFanPct(FAN_OUT,10);
+    return ;
   }
 
-  // check SOC
+  co2 = VAR_GetVariable(VAR_CO2_RECU, &invalid);
+
+  // check SOC - low power configuration.
   if(soc < LOW_SOC_THRESHOLD)
   {
     SetFanPct(FAN_IN,0);
@@ -74,69 +79,81 @@ void RECON_Update_1s(void)
     return ;
   }
 
-  // check freezing condition
-  if(input_temp < (ANTIFREEZE_TEMP*10))
-  {
-    SetFanPct(FAN_IN,0);
-    SetFanPct(FAN_OUT,15);
-    return;
-  }
-
 
   // check CO2
- /* if(mActionTimer > MIN_ACTION_TIME_S)
+
+  if(mManualControl == 0)  // control by co2
   {
-    if(co2 > CO2_MAX_TARGET)
+    if(co2 > 600)
     {
-      mFanInPct += 5;
-      mFanOutPct += 5;
-      mActionTimer = 0;
+      mFansPct = (co2 - 600) / 10;
     }
-    else if(co2 < CO2_MAX_TARGET - CO2_HYSTERESIS)
+    else
     {
-      mFanInPct -= 5;
-      mFanOutPct -= 5;
-      mActionTimer = 0;
+      mFansPct = 10;
     }
-  }*/
-
-  if(co2 > 600)
-  {
-    mFansPct = (co2 - 600) / 10;
   }
-  else
+  else  // control by the button
   {
-    mFansPct = 10;
+    fan_limit = 100;
+    if (GPIO_PIN_RESET == HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin))
+   {
+      mFansPct += 5;
+      if(mFansPct > 100)
+      {
+        mFansPct = FAN_MIN;
+      }
+   }
   }
 
 
-  mFanOutPct = mFansPct;
-  mFanInPct = (mFansPct * 9) / 10;
+  // optimal Fan PWM is calculated with respect to CO2 concentration.
+
+  // now we can adjust ratio of the two fans and also apply the antifreeze feature
+
+  if(wc_temp > (ANTIFREEZE_TEMP_OUT_C10 + ANTIFREEZE_HYST_C10))  // no risk of freezink -> full ventilataion
+  {
+    mFanOutPct = mFansPct;
+    mFanInPct = (mFansPct * 8) / 10;
+    //mFanInPct = mFansPct;
+
+    // range check
+
+    if(mFanInPct < FAN_MIN) mFanInPct = FAN_MIN;
+    if(mFanOutPct < FAN_MIN) mFanOutPct = FAN_MIN;
+    if(mFanInPct > fan_limit) mFanInPct = fan_limit;
+    if(mFanOutPct > fan_limit) mFanOutPct = fan_limit;
+  }
+  else if(wc_temp > ANTIFREEZE_TEMP_OUT_C10) // mitigating risk of freezing - reduced fresh(cold) air fan
+  {
+    dumping_factor = ((wc_temp - ANTIFREEZE_TEMP_OUT_C10) / 10);
+    mFanOutPct = mFansPct;
+    mFanInPct = (mFansPct * (5 + dumping_factor)) / 10;  // input fan limted to 50% of the output fan
+
+    // range check
+    if(mFanOutPct < FAN_MIN) mFanOutPct = FAN_MIN;
+    if(mFanOutPct > fan_limit)
+    {
+      mFanOutPct = fan_limit;
+      mFanInPct = (fan_limit * 5) / 10;
+    }
+
+  }
+  else // high risk of freezing.  Turn off the input fan completely
+  {
+    mFanOutPct = 10;  // minimal output fan
+    mFanInPct = 0;  // stopped input fan
+  }
 
 
-  // range check
-
-  if(mFanInPct < FAN_MIN) mFanInPct = FAN_MIN;
-  if(mFanOutPct < FAN_MIN) mFanOutPct = FAN_MIN;
-
-
-  if(mFanInPct > fan_limit) mFanInPct = fan_limit;
-  if(mFanOutPct > fan_limit) mFanOutPct = fan_limit;
 
 
   SetFanPct(FAN_IN,mFanInPct);
   SetFanPct(FAN_OUT,mFanOutPct);
 
-
-
-
-
-
-
-
-
-
 }
+
+
 
 
 void SetFanPct(uint8_t Fan, uint8_t pct)
