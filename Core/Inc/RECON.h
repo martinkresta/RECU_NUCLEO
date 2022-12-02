@@ -16,17 +16,22 @@
 #define  CO2_HYSTERESIS     100
 
 #define  FAN_MAX_NIGHT      25
-#define  FAN_MAX_DAY        60
+#define  FAN_MAX_DAY_FULL   55
+#define  FAN_MAX_DAY_ECO    35
 #define  FAN_MIN            10
 
 
-#define  ANTIFREEZE_TEMP_OUT_C10  50  //5C
+#define  ANTIFREEZE_TEMP_OUT_C10  40  //4C
 
 
-#define  ANTIFREEZE_HYST_C10    30  // 3C
+#define  ANTIFREEZE_HYST_C10    40  // 4C
 
-#define  LOW_SOC_THRESHOLD  40
+#define  LOW_SOC_OFF_THRESHOLD  40
+#define  LOW_SOC_ECO_THRESHOLD  85
+
 #define  MIN_ACTION_TIME_S  900
+
+#define  MIN_AIR_HUMIDITY_PCT 55
 
 
 #define FAN_IN            0

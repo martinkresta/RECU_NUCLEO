@@ -46,14 +46,14 @@ void RECON_Init(void)
 
 void RECON_Update_1s(void)
 {
-  int16_t fc_temp, wc_temp, co2 ,soc, dumping_factor;
+  int16_t fc_temp, wc_temp, co2 ,soc, wh_humidity, dumping_factor;
   uint16_t fan_limit, invalid ;
 
   mActionTimer++;
 
   // Chech day/night time
   sDateTime now = RTC_GetTime();
-  if(now.Hour > 6 && now.Hour < 21) fan_limit = FAN_MAX_DAY;
+  if(now.Hour > 6 && now.Hour < 21) fan_limit = FAN_MAX_DAY_FULL;
   else fan_limit = FAN_MAX_NIGHT;
 
   // collect the variables
@@ -70,13 +70,19 @@ void RECON_Update_1s(void)
   }
 
   co2 = VAR_GetVariable(VAR_CO2_RECU, &invalid);
+  wh_humidity = VAR_GetVariable(VAR_RH_RECU_WH, &invalid);
 
   // check SOC - low power configuration.
-  if(soc < LOW_SOC_THRESHOLD)
+  if(soc < LOW_SOC_OFF_THRESHOLD)
   {
     SetFanPct(FAN_IN,0);
     SetFanPct(FAN_OUT,10);
     return ;
+  }
+
+  if(soc < LOW_SOC_ECO_THRESHOLD && fan_limit > FAN_MAX_DAY_ECO)
+  {
+    fan_limit = FAN_MAX_DAY_ECO;
   }
 
 
@@ -106,6 +112,14 @@ void RECON_Update_1s(void)
    }
   }
 
+  // check humidity to prevent to dry indoor air
+
+  if(wh_humidity < MIN_AIR_HUMIDITY_PCT)  // if air is too dry
+  {
+    mFansPct = FAN_MIN;  // limit the fans to minimun.  (The air humidity has higher prio than CO2 concentration)
+  }
+
+
 
   // optimal Fan PWM is calculated with respect to CO2 concentration.
 
@@ -114,28 +128,31 @@ void RECON_Update_1s(void)
   if(wc_temp > (ANTIFREEZE_TEMP_OUT_C10 + ANTIFREEZE_HYST_C10))  // no risk of freezink -> full ventilataion
   {
     mFanOutPct = mFansPct;
-    mFanInPct = (mFansPct * 8) / 10;
+
+    // apply limitations
+    if(mFanOutPct > fan_limit) mFanOutPct = fan_limit;
+
+    // calculate input fan relatively to output fan
+    mFanInPct = (mFanOutPct * 9) / 10;
     //mFanInPct = mFansPct;
 
-    // range check
-
-    if(mFanInPct < FAN_MIN) mFanInPct = FAN_MIN;
+    // range check (this can corrupt optimal fan ratio, but whatever)
+    if(mFanInPct < FAN_MIN)  mFanInPct = FAN_MIN;
     if(mFanOutPct < FAN_MIN) mFanOutPct = FAN_MIN;
-    if(mFanInPct > fan_limit) mFanInPct = fan_limit;
-    if(mFanOutPct > fan_limit) mFanOutPct = fan_limit;
+
   }
   else if(wc_temp > ANTIFREEZE_TEMP_OUT_C10) // mitigating risk of freezing - reduced fresh(cold) air fan
   {
     dumping_factor = ((wc_temp - ANTIFREEZE_TEMP_OUT_C10) / 10);
     mFanOutPct = mFansPct;
-    mFanInPct = (mFansPct * (5 + dumping_factor)) / 10;  // input fan limted to 50% of the output fan
+    mFanInPct = (mFansPct * (5 + dumping_factor)) / 10;  // input fan limted down to 50% of the output fan
 
     // range check
     if(mFanOutPct < FAN_MIN) mFanOutPct = FAN_MIN;
     if(mFanOutPct > fan_limit)
     {
       mFanOutPct = fan_limit;
-      mFanInPct = (fan_limit * 5) / 10;
+      mFanInPct = (fan_limit * (5 + dumping_factor)) / 10;
     }
 
   }
