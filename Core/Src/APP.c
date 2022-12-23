@@ -171,7 +171,7 @@ void APP_Start(void)
 	MCAN_Start();
 	while (1)   // endless loop
 	{
-		Scheduler_Check_Flag();
+  Scheduler_Check_Flag();
 
 		s_CanRxMsg rmsg;
 		while(1 == COM_GetRxMessage(&rmsg))  // process all messages in buffer

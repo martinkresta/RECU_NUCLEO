@@ -21,6 +21,8 @@ static uint16_t mFansPct;
 static uint32_t mActionTimer;
 
 static uint8_t mManualControl;
+static uint8_t mAntiDryOn;
+
 
 
 
@@ -42,6 +44,7 @@ void RECON_Init(void)
   SetFanPct(FAN_IN,mFanInPct);
   SetFanPct(FAN_OUT,mFanOutPct);
   mManualControl = 0;
+  mAntiDryOn = 0;
 }
 
 void RECON_Update_1s(void)
@@ -72,6 +75,7 @@ void RECON_Update_1s(void)
   co2 = VAR_GetVariable(VAR_CO2_RECU, &invalid);
   wh_humidity = VAR_GetVariable(VAR_RH_RECU_WH, &invalid);
 
+
   // check SOC - low power configuration.
   if(soc < LOW_SOC_OFF_THRESHOLD)
   {
@@ -86,10 +90,31 @@ void RECON_Update_1s(void)
   }
 
 
-  // check CO2
 
-  if(mManualControl == 0)  // control by co2
+  if(mManualControl == 0)
   {
+    // select control mode (co2 based or anti-dry  limitation)
+    if((mAntiDryOn == 0) && wh_humidity <= RH_ANTI_DRY) // activate anti dry
+    {
+      mAntiDryOn = 1;
+
+    }
+    else if((mAntiDryOn == 1) && wh_humidity > RH_ANTI_DRY + RH_ANTI_DRY_HIST) // deactivate anti dry feature and check CO2
+    {
+      mAntiDryOn = 0;
+    }
+
+    // set fan limit  if anti dry mode is active
+    if (mAntiDryOn == 1)
+    {
+      fan_limit = FAN_ANTI_DRY;  // limit the fans to FAN_ANTI_DRY.  (The air humidity has higher prio than CO2 concentration)
+    }
+    else
+    {
+      // do not overwrite the fan limit
+    }
+
+    // optimal Fan PWM is calculated with respect to CO2 concentration.
     if(co2 > 600)
     {
       mFansPct = (co2 - 600) / 10;
@@ -98,8 +123,10 @@ void RECON_Update_1s(void)
     {
       mFansPct = 10;
     }
+
   }
-  else  // control by the button
+
+  else  // manual control by the button
   {
     fan_limit = 100;
     if (GPIO_PIN_RESET == HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin))
@@ -112,18 +139,8 @@ void RECON_Update_1s(void)
    }
   }
 
-  // check humidity to prevent to dry indoor air
 
-  if(wh_humidity < MIN_AIR_HUMIDITY_PCT)  // if air is too dry
-  {
-    mFansPct = FAN_MIN;  // limit the fans to minimun.  (The air humidity has higher prio than CO2 concentration)
-  }
-
-
-
-  // optimal Fan PWM is calculated with respect to CO2 concentration.
-
-  // now we can adjust ratio of the two fans and also apply the antifreeze feature
+  // now we can adjust ratio of the two fans and also apply the antifreeze feature if needed
 
   if(wc_temp > (ANTIFREEZE_TEMP_OUT_C10 + ANTIFREEZE_HYST_C10))  // no risk of freezink -> full ventilataion
   {
@@ -133,7 +150,7 @@ void RECON_Update_1s(void)
     if(mFanOutPct > fan_limit) mFanOutPct = fan_limit;
 
     // calculate input fan relatively to output fan
-    mFanInPct = (mFanOutPct * 9) / 10;
+    mFanInPct = (mFanOutPct * 9) / 10;   // optimal fan ratio to avoid overpressure/underpressure
     //mFanInPct = mFansPct;
 
     // range check (this can corrupt optimal fan ratio, but whatever)
@@ -161,9 +178,6 @@ void RECON_Update_1s(void)
     mFanOutPct = 10;  // minimal output fan
     mFanInPct = 0;  // stopped input fan
   }
-
-
-
 
   SetFanPct(FAN_IN,mFanInPct);
   SetFanPct(FAN_OUT,mFanOutPct);
