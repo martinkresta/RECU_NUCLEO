@@ -10,6 +10,7 @@
 #define INC_RECON_H_
 
 #include "main.h"
+#include "com.h"
 
 #define  CO2_MAX_TARGET     1000  // 1000ppm
 #define  CO2_BEST_TARGET    800
@@ -40,6 +41,7 @@
 #define FAN_IN            0
 #define FAN_OUT           1
 
+/*
 typedef enum
 {
   errm_AutoControl = 0,   // cancelling remote request
@@ -47,13 +49,13 @@ typedef enum
   errm_MaxOverpressure,
   errm_SlightUnderpressure,
   errm_MaxUnderpressure
-}eRemoteReqMode;
+}eRemoteReqMode;*/
 
 void RECON_Init(void);
 
 void RECON_Update_1s(void);
 
-void RECON_RemoteRequest(eRemoteReqMode mode, uint16_t duration_s);
+void RECON_RemoteRequest(eRecuRemoteReqMode mode, uint16_t duration_s);
 
 
 #endif /* INC_RECON_H_ */

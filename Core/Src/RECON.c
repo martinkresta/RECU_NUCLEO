@@ -20,7 +20,7 @@ static uint16_t mFansPct;
 
 static uint32_t mActionTimer;
 static uint32_t mRemoteRequestTimer;
-static eRemoteReqMode mRemoteMode;
+static eRecuRemoteReqMode mRemoteMode;
 
 static uint8_t mManualControl;
 static uint8_t mAntiDryOn;
@@ -47,6 +47,7 @@ void RECON_Init(void)
   SetFanPct(FAN_OUT,mFanOutPct);
   mManualControl = 0;
   mAntiDryOn = 0;
+  mRemoteMode = errm_AutoControl;
 }
 
 void RECON_Update_1s(void)
@@ -228,7 +229,7 @@ void RECON_Update_1s(void)
 }
 
 
-void RECON_RemoteRequest(eRemoteReqMode mode, uint16_t duration_s)
+void RECON_RemoteRequest(eRecuRemoteReqMode mode, uint16_t duration_s)
 {
   if(duration_s > MAX_REMOTE_REQUEST_DURATION)
   {
