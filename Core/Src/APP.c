@@ -196,38 +196,6 @@ void APP_Update_1s(void)
 	}
 
 
- /* if (GPIO_PIN_RESET == HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin))
-  {
-
-     mFanPct += 5;
-     if(mFanPct >= 100)
-     {
-       mFanPct = 0;
-     }
-
-     VAR_SetVariable(VAR_RECU_FAN_F, mFanPct,1);
-     VAR_SetVariable(VAR_RECU_FAN_W, mFanPct,1);
-
-     mPWM.Pulse = mFanPct * 10;
-
-     HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);
-
-     if (HAL_TIM_PWM_ConfigChannel(&htim1, &mPWM, TIM_CHANNEL_1) != HAL_OK)
-      {
-        Error_Handler();
-      }
-
-     HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
-
-     HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_2);
-
-     if (HAL_TIM_PWM_ConfigChannel(&htim1, &mPWM, TIM_CHANNEL_2) != HAL_OK)
-      {
-        Error_Handler();
-      }
-
-     HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
-  }*/
 
 }
 
@@ -252,6 +220,9 @@ static void ProcessMessage(s_CanRxMsg* msg)
 		case CMD_GESTURE:
 			// TBD
 			break;
+		case CMD_RECU_REMOTE_REQ:
+		  RECON_RemoteRequest(par1, par2);
+		  break;
 		case CMD_RTC_SYNC: // set RTC time
 			unixtime |= msg->data[0] << 24;
 			unixtime |= msg->data[1] << 16;

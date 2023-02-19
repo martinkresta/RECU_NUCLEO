@@ -19,6 +19,8 @@ static uint16_t mFanOutPct;
 static uint16_t mFansPct;
 
 static uint32_t mActionTimer;
+static uint32_t mRemoteRequestTimer;
+static eRemoteReqMode mRemoteMode;
 
 static uint8_t mManualControl;
 static uint8_t mAntiDryOn;
@@ -91,7 +93,7 @@ void RECON_Update_1s(void)
 
 
 
-  if(mManualControl == 0)
+  if(mManualControl == 0)  // automatic control
   {
     // select control mode (co2 based or anti-dry  limitation)
     if((mAntiDryOn == 0) && wh_humidity <= RH_ANTI_DRY) // activate anti dry
@@ -173,11 +175,52 @@ void RECON_Update_1s(void)
     }
 
   }
-  else // high risk of freezing.  Turn off the input fan completely
+
+
+  // Timing of remote requests
+  if(mRemoteRequestTimer > 0)
+  {
+    mRemoteRequestTimer --;
+  }
+  else  // cancel the remote request mode, if time has elapsed
+  {
+    mRemoteMode = errm_AutoControl;
+  }
+
+
+  // adjust the fan_x values according to remote request
+  switch (mRemoteMode)
+  {
+    case errm_AutoControl:
+        // do nothing, remote request off
+      break;
+    case errm_SligtOvepressure:
+      mFanInPct = mFanOutPct + 25;
+      break;
+    case errm_MaxOverpressure:
+      mFanInPct = 95;   // full fan power
+      break;
+    case errm_SlightUnderpressure:
+      mFanOutPct = mFanInPct + 25;
+      break;
+    case errm_MaxUnderpressure:
+      mFanOutPct = 95;
+      mFanInPct = 0;
+      break;
+  }
+
+
+
+
+
+  // safety Anti freeze feature  which canot be overwritten by any control mode
+
+  if(wc_temp < ANTIFREEZE_TEMP_OUT_C10)  // less then 4.0 C  // high risk of freezing.  Turn off the input fan completely
   {
     mFanOutPct = 10;  // minimal output fan
     mFanInPct = 0;  // stopped input fan
   }
+
 
   SetFanPct(FAN_IN,mFanInPct);
   SetFanPct(FAN_OUT,mFanOutPct);
@@ -185,6 +228,15 @@ void RECON_Update_1s(void)
 }
 
 
+void RECON_RemoteRequest(eRemoteReqMode mode, uint16_t duration_s)
+{
+  if(duration_s > MAX_REMOTE_REQUEST_DURATION)
+  {
+    duration_s = MAX_REMOTE_REQUEST_DURATION;
+  }
+  mRemoteRequestTimer = duration_s;
+  mRemoteMode = mode;
+}
 
 
 void SetFanPct(uint8_t Fan, uint8_t pct)

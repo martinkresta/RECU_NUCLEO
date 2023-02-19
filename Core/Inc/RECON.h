@@ -29,18 +29,31 @@
 
 #define  ANTIFREEZE_HYST_C10    40  // 4C
 
-#define  LOW_SOC_OFF_THRESHOLD  40
+#define  LOW_SOC_OFF_THRESHOLD  30
 #define  LOW_SOC_ECO_THRESHOLD  85
 
 #define  MIN_ACTION_TIME_S  900
+
+#define MAX_REMOTE_REQUEST_DURATION 1000
 
 
 #define FAN_IN            0
 #define FAN_OUT           1
 
+typedef enum
+{
+  errm_AutoControl = 0,   // cancelling remote request
+  errm_SligtOvepressure,
+  errm_MaxOverpressure,
+  errm_SlightUnderpressure,
+  errm_MaxUnderpressure
+}eRemoteReqMode;
+
 void RECON_Init(void);
 
 void RECON_Update_1s(void);
+
+void RECON_RemoteRequest(eRemoteReqMode mode, uint16_t duration_s);
 
 
 #endif /* INC_RECON_H_ */
