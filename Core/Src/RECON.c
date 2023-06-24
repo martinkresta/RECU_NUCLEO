@@ -19,11 +19,13 @@ static uint16_t mFanOutPct;
 static uint16_t mFansPct;
 
 static uint32_t mActionTimer;
+static uint32_t mHystTimer;
 static uint32_t mRemoteRequestTimer;
 static eRecuRemoteReqMode mRemoteMode;
 
 static uint8_t mManualControl;
 static uint8_t mAntiDryOn;
+static uint8_t mSummerCoolingMode;
 
 
 
@@ -48,24 +50,48 @@ void RECON_Init(void)
   mManualControl = 0;
   mAntiDryOn = 0;
   mRemoteMode = errm_AutoControl;
+  mSummerCoolingMode = 0;
 }
 
 void RECON_Update_1s(void)
 {
-  int16_t fc_temp, wc_temp, co2 ,soc, wh_humidity, dumping_factor;
+  int16_t fc_temp,fh_temp, upstairs_temp, downstairs_temp, outside_temp, wc_temp, co2 ,soc, wh_humidity, dumping_factor;
   uint16_t fan_limit, invalid ;
 
   mActionTimer++;
+  mHystTimer++;
 
-  // Chech day/night time
+
   sDateTime now = RTC_GetTime();
-  if(now.Hour > 6 && now.Hour < 21) fan_limit = FAN_MAX_DAY_FULL;
-  else fan_limit = FAN_MAX_NIGHT;
+  if(now.Month > 4 && now.Month < 9)  // summer cooling period from may to august
+  {
+    mSummerCoolingMode = 1;
+    fan_limit = FAN_MAX_DAY_FULL; // fan power is not limited during night time, because we need high intensity ventilation for cooling effect
+  }
+  else
+  {
+    mSummerCoolingMode = 0;
+    // Chech day/night time
+    if(now.Hour > 6 && now.Hour < 21)
+    {
+      fan_limit = FAN_MAX_DAY_FULL;
+    }
+    else
+    {
+      fan_limit = FAN_MAX_NIGHT;
+    }
+  }
+
+
 
   // collect the variables
   invalid = 0;
   fc_temp = VAR_GetVariable(VAR_TEMP_RECU_FC,&invalid);  // input fresh air
+  fh_temp = VAR_GetVariable(VAR_TEMP_RECU_FH,&invalid);
   wc_temp = VAR_GetVariable(VAR_TEMP_RECU_WC,&invalid);  // input fresh air
+  upstairs_temp = VAR_GetVariable(VAR_TEMP_KIDROOM,&invalid);  // indoor temperature
+  downstairs_temp = VAR_GetVariable(VAR_TEMP_DOWNSTAIRS,&invalid);  // indoor temperature
+  outside_temp = VAR_GetVariable(VAR_TEMP_OUTSIDE,&invalid);
   soc  = VAR_GetVariable(VAR_BAT_SOC,&invalid);     // battery soc
 
   if(invalid)  // safety configuration in case some critical inputs are not valid
@@ -91,7 +117,6 @@ void RECON_Update_1s(void)
   {
     fan_limit = FAN_MAX_DAY_ECO;
   }
-
 
 
   if(mManualControl == 0)  // automatic control
@@ -142,6 +167,39 @@ void RECON_Update_1s(void)
    }
   }
 
+  if(mSummerCoolingMode == 1)  // summer mode: we don't care about co2 and humidity, we just want to cool the interior NOTE: SUMMER BYPASS FLAP HAS TO BE OPEN!
+  {
+    uint16_t indoor_temp = upstairs_temp;
+    if(downstairs_temp > indoor_temp)
+    {
+      indoor_temp = downstairs_temp;
+    }
+    if(now.Hour > 9 && now.Hour < 23)  // day time - cooling disabled (not effective)
+    {
+      mFanOutPct = FAN_MIN;
+      mFanInPct = 0;
+    }
+    else
+    {
+      if(indoor_temp >= INTERIEROR_COOLING_ENABLE_TEMP)  // limit cooling only to when indoor is not too cold
+      {
+        if (outside_temp < (indoor_temp + 10) &&  mHystTimer > TIME_HYST_DELAY_S)
+        {
+          mFanOutPct = 40;
+          mFanInPct = 40;
+          mHystTimer = 0;
+        }
+        if(fh_temp > indoor_temp &&  mHystTimer > TIME_HYST_DELAY_S)
+        {
+          mFanOutPct = FAN_MIN;
+          mFanInPct = 0;
+          mHystTimer = 0;
+        }
+      }
+    }
+
+  }
+
 
   // now we can adjust ratio of the two fans and also apply the antifreeze feature if needed
 
@@ -157,8 +215,8 @@ void RECON_Update_1s(void)
     //mFanInPct = mFansPct;
 
     // range check (this can corrupt optimal fan ratio, but whatever)
-    if(mFanInPct < FAN_MIN)  mFanInPct = FAN_MIN;
-    if(mFanOutPct < FAN_MIN) mFanOutPct = FAN_MIN;
+    if(mFanInPct != 0 && mFanInPct < FAN_MIN)  mFanInPct = FAN_MIN;
+    if(mFanOutPct != 0 && mFanOutPct < FAN_MIN) mFanOutPct = FAN_MIN;
 
   }
   else if(wc_temp > ANTIFREEZE_TEMP_OUT_C10) // mitigating risk of freezing - reduced fresh(cold) air fan
@@ -168,7 +226,7 @@ void RECON_Update_1s(void)
     mFanInPct = (mFansPct * (5 + dumping_factor)) / 10;  // input fan limted down to 50% of the output fan
 
     // range check
-    if(mFanOutPct < FAN_MIN) mFanOutPct = FAN_MIN;
+    if(mFanOutPct != 0 && mFanOutPct < FAN_MIN) mFanOutPct = FAN_MIN;
     if(mFanOutPct > fan_limit)
     {
       mFanOutPct = fan_limit;
@@ -214,7 +272,7 @@ void RECON_Update_1s(void)
 
 
 
-  // safety Anti freeze feature  which canot be overwritten by any control mode
+  // safety Anti freeze feature  which cannot be overwritten by any control mode
 
   if(wc_temp < ANTIFREEZE_TEMP_OUT_C10)  // less then 4.0 C  // high risk of freezing.  Turn off the input fan completely
   {

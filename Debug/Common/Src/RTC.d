@@ -33,9 +33,7 @@ Common/Src/RTC.o: C:/Martin/GIT/UHA_COMMON/Src/RTC.c \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rtc_ex.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h \
- ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h \
- ../../UHA_COMMON/Inc/com.h ../../UHA_COMMON/Inc/MCAN.h \
- ../../UHA_COMMON/Inc/circbuf.h
+ ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h
 ../../UHA_COMMON/Inc/RTC.h:
 ../Core/Inc/main.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:
@@ -72,6 +70,3 @@ Common/Src/RTC.o: C:/Martin/GIT/UHA_COMMON/Src/RTC.c \
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h:
-../../UHA_COMMON/Inc/com.h:
-../../UHA_COMMON/Inc/MCAN.h:
-../../UHA_COMMON/Inc/circbuf.h:
