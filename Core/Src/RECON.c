@@ -185,8 +185,8 @@ void RECON_Update_1s(void)
       {
         if (outside_temp < (indoor_temp + 10) &&  mHystTimer > TIME_HYST_DELAY_S)
         {
-          mFanOutPct = 40;
-          mFanInPct = 40;
+          mFanOutPct = 35;
+          mFanInPct = 35;
           mHystTimer = 0;
         }
         if(fh_temp > indoor_temp &&  mHystTimer > TIME_HYST_DELAY_S)
@@ -197,44 +197,42 @@ void RECON_Update_1s(void)
         }
       }
     }
-
   }
 
-
-  // now we can adjust ratio of the two fans and also apply the antifreeze feature if needed
-
-  if(wc_temp > (ANTIFREEZE_TEMP_OUT_C10 + ANTIFREEZE_HYST_C10))  // no risk of freezink -> full ventilataion
+  if(mSummerCoolingMode == 0)
   {
-    mFanOutPct = mFansPct;
-
-    // apply limitations
-    if(mFanOutPct > fan_limit) mFanOutPct = fan_limit;
-
-    // calculate input fan relatively to output fan
-    mFanInPct = (mFanOutPct * 9) / 10;   // optimal fan ratio to avoid overpressure/underpressure
-    //mFanInPct = mFansPct;
-
-    // range check (this can corrupt optimal fan ratio, but whatever)
-    if(mFanInPct != 0 && mFanInPct < FAN_MIN)  mFanInPct = FAN_MIN;
-    if(mFanOutPct != 0 && mFanOutPct < FAN_MIN) mFanOutPct = FAN_MIN;
-
-  }
-  else if(wc_temp > ANTIFREEZE_TEMP_OUT_C10) // mitigating risk of freezing - reduced fresh(cold) air fan
-  {
-    dumping_factor = ((wc_temp - ANTIFREEZE_TEMP_OUT_C10) / 10);
-    mFanOutPct = mFansPct;
-    mFanInPct = (mFansPct * (5 + dumping_factor)) / 10;  // input fan limted down to 50% of the output fan
-
-    // range check
-    if(mFanOutPct != 0 && mFanOutPct < FAN_MIN) mFanOutPct = FAN_MIN;
-    if(mFanOutPct > fan_limit)
+    // now we can adjust ratio of the two fans and also apply the antifreeze feature if needed
+    if(wc_temp > (ANTIFREEZE_TEMP_OUT_C10 + ANTIFREEZE_HYST_C10))  // no risk of freezink -> full ventilataion
     {
-      mFanOutPct = fan_limit;
-      mFanInPct = (fan_limit * (5 + dumping_factor)) / 10;
+      mFanOutPct = mFansPct;
+
+      // apply limitations
+      if(mFanOutPct > fan_limit) mFanOutPct = fan_limit;
+
+      // calculate input fan relatively to output fan
+      mFanInPct = (mFanOutPct * 9) / 10;   // optimal fan ratio to avoid overpressure/underpressure
+      //mFanInPct = mFansPct;
+
+      // range check (this can corrupt optimal fan ratio, but whatever)
+      if(mFanInPct != 0 && mFanInPct < FAN_MIN)  mFanInPct = FAN_MIN;
+      if(mFanOutPct != 0 && mFanOutPct < FAN_MIN) mFanOutPct = FAN_MIN;
+
     }
+    else if(wc_temp > ANTIFREEZE_TEMP_OUT_C10) // mitigating risk of freezing - reduced fresh(cold) air fan
+    {
+      dumping_factor = ((wc_temp - ANTIFREEZE_TEMP_OUT_C10) / 10);
+      mFanOutPct = mFansPct;
+      mFanInPct = (mFansPct * (5 + dumping_factor)) / 10;  // input fan limted down to 50% of the output fan
 
+      // range check
+      if(mFanOutPct != 0 && mFanOutPct < FAN_MIN) mFanOutPct = FAN_MIN;
+      if(mFanOutPct > fan_limit)
+      {
+        mFanOutPct = fan_limit;
+        mFanInPct = (fan_limit * (5 + dumping_factor)) / 10;
+      }
+    }
   }
-
 
   // Timing of remote requests
   if(mRemoteRequestTimer > 0)
