@@ -21,7 +21,7 @@
 #define  FAN_MAX_DAY_ECO    35
 #define  FAN_MIN            10
 #define  FAN_ANTI_DRY       15
-#define  RH_ANTI_DRY        53
+#define  RH_ANTI_DRY        50
 #define  RH_ANTI_DRY_HIST   2
 
 

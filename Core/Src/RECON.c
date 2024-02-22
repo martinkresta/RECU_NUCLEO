@@ -143,7 +143,7 @@ void RECON_Update_1s(void)
     }
 
     // optimal Fan PWM is calculated with respect to CO2 concentration.
-    if(co2 > 600)
+    if(co2 > 610)
     {
       mFansPct = (co2 - 600) / 10;
     }

@@ -9,4 +9,5 @@ C:/Martin/GIT/UHA_COMMON/Src/COM.c:107:6:COM_AddStreamedVariable	24	static
 C:/Martin/GIT/UHA_COMMON/Src/COM.c:147:6:COM_SendGesture	24	static
 C:/Martin/GIT/UHA_COMMON/Src/COM.c:163:6:COM_SendACRemoteRequest	24	static
 C:/Martin/GIT/UHA_COMMON/Src/COM.c:178:6:COM_SendRecuRemoteRequest	24	static
-C:/Martin/GIT/UHA_COMMON/Src/COM.c:193:13:SendVariable	32	static
+C:/Martin/GIT/UHA_COMMON/Src/COM.c:194:6:COM_SendUhamonMessage	24	static
+C:/Martin/GIT/UHA_COMMON/Src/COM.c:203:13:SendVariable	32	static
