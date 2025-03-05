@@ -1,5 +1,7 @@
+"./Common/Src/BMS.o"
 "./Common/Src/COM.o"
 "./Common/Src/ELM.o"
+"./Common/Src/LOG.o"
 "./Common/Src/MCAN.o"
 "./Common/Src/METEO.o"
 "./Common/Src/OW.o"

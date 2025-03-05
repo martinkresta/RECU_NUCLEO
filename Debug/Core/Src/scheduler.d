@@ -36,8 +36,8 @@ Core/Src/scheduler.o: ../Core/Src/scheduler.c ../Core/Inc/scheduler.h \
  ../../UHA_COMMON/Inc/UI.h ../Core/Inc/main.h ../../UHA_COMMON/Inc/OW.h \
  ../../UHA_COMMON/Inc/TEMP.h ../../UHA_COMMON/Inc/MCAN.h \
  ../../UHA_COMMON/Inc/circbuf.h ../../UHA_COMMON/Inc/COM.h \
- ../../UHA_COMMON/Inc/MCAN.h ../Core/Inc/APP.h \
- ../../UHA_COMMON/Inc/GEST.h ../Core/Inc/app.h ../../UHA_COMMON/Inc/ELM.h \
+ ../../UHA_COMMON/Inc/MCAN.h ../../UHA_COMMON/Inc/LOG.h ../Core/Inc/APP.h \
+ ../../UHA_COMMON/Inc/GEST.h ../../UHA_COMMON/Inc/ELM.h \
  ../../UHA_COMMON/Inc/SENSIRION.h ../Core/Inc/RECON.h \
  ../../UHA_COMMON/Inc/com.h
 ../Core/Inc/scheduler.h:
@@ -84,9 +84,9 @@ Core/Src/scheduler.o: ../Core/Src/scheduler.c ../Core/Inc/scheduler.h \
 ../../UHA_COMMON/Inc/circbuf.h:
 ../../UHA_COMMON/Inc/COM.h:
 ../../UHA_COMMON/Inc/MCAN.h:
+../../UHA_COMMON/Inc/LOG.h:
 ../Core/Inc/APP.h:
 ../../UHA_COMMON/Inc/GEST.h:
-../Core/Inc/app.h:
 ../../UHA_COMMON/Inc/ELM.h:
 ../../UHA_COMMON/Inc/SENSIRION.h:
 ../Core/Inc/RECON.h:

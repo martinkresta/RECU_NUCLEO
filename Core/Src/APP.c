@@ -20,6 +20,7 @@
 #include "watchdog.h"
 #include "SENSIRION.h"
 #include "RECON.h"
+#include "LOG.h"
 
 // local routines
 static void ProcessMessage(s_CanRxMsg* msg);
@@ -169,6 +170,9 @@ void APP_Start(void)
 {
 
 	MCAN_Start();
+
+	LOG_Startup();
+
 	while (1)   // endless loop
 	{
   Scheduler_Check_Flag();
