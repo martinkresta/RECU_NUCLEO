@@ -1,7 +1,0 @@
-C:/Martin/GIT/UHA_COMMON/Src/RTC.c:29:11:RTC_GetTime	48	static
-C:/Martin/GIT/UHA_COMMON/Src/RTC.c:50:6:RTC_SetTime	40	static
-C:/Martin/GIT/UHA_COMMON/Src/RTC.c:91:7:RTC_SetUnixTime	40	static
-C:/Martin/GIT/UHA_COMMON/Src/RTC.c:107:11:RTC_GetUnixTime	56	static
-C:/Martin/GIT/UHA_COMMON/Src/RTC.c:122:7:RTC_PrintTimeStamp	48	static
-C:/Martin/GIT/UHA_COMMON/Src/RTC.c:131:7:RTC_PrintTimeStampMs	72	static
-C:/Martin/GIT/UHA_COMMON/Src/RTC.c:143:7:RTC_PrintDate	32	static

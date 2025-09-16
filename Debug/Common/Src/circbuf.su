@@ -1,8 +1,0 @@
-C:/Martin/GIT/UHA_COMMON/Src/circbuf.c:31:11:CB_Create	24	static
-C:/Martin/GIT/UHA_COMMON/Src/circbuf.c:46:9:CB_Destroy	16	static
-C:/Martin/GIT/UHA_COMMON/Src/circbuf.c:69:10:CB_NumOfItems	24	static
-C:/Martin/GIT/UHA_COMMON/Src/circbuf.c:97:9:CB_IsEmpty	16	static
-C:/Martin/GIT/UHA_COMMON/Src/circbuf.c:110:9:CB_Probe	16	static,ignoring_inline_asm
-C:/Martin/GIT/UHA_COMMON/Src/circbuf.c:141:9:CB_Remove	16	static,ignoring_inline_asm
-C:/Martin/GIT/UHA_COMMON/Src/circbuf.c:168:9:CB_Get	16	static,ignoring_inline_asm
-C:/Martin/GIT/UHA_COMMON/Src/circbuf.c:197:9:CB_Put	16	static

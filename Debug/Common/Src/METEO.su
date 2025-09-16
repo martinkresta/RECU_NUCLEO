@@ -1,8 +1,0 @@
-C:/Martin/GIT/UHA_COMMON/Src/METEO.c:20:6:METEO_Init	16	static
-C:/Martin/GIT/UHA_COMMON/Src/METEO.c:28:6:METEO_Update_1s	168	static
-C:/Martin/GIT/UHA_COMMON/Src/METEO.c:72:10:METEO_GetWindSpeedAvg	4	static
-C:/Martin/GIT/UHA_COMMON/Src/METEO.c:77:10:METEO_GetWindSpeedBurst	4	static
-C:/Martin/GIT/UHA_COMMON/Src/METEO.c:82:10:METEO_GetWindEnergyWh	8	static
-C:/Martin/GIT/UHA_COMMON/Src/METEO.c:87:6:METEO_ResetWindEnergy	4	static
-C:/Martin/GIT/UHA_COMMON/Src/METEO.c:92:6:METEO_ResetRainFall	4	static
-C:/Martin/GIT/UHA_COMMON/Src/METEO.c:100:6:METEO_ExtiCallback	24	static

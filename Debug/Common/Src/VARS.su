@@ -1,4 +1,0 @@
-C:/Martin/GIT/UHA_COMMON/Src/VARS.c:17:6:VAR_Init	16	static
-C:/Martin/GIT/UHA_COMMON/Src/VARS.c:28:9:VAR_GetVariable	16	static
-C:/Martin/GIT/UHA_COMMON/Src/VARS.c:46:10:VAR_GetVariablePointer	16	static
-C:/Martin/GIT/UHA_COMMON/Src/VARS.c:63:6:VAR_SetVariable	16	static
