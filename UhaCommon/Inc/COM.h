@@ -34,7 +34,11 @@
 #define  CMD_UHAMON_RECIEVE   0x600
 #define  CMD_UHAMON_SEND      0x610
 
+
 #define  CMD_LOG_MSG  0x620
+
+#define CMD_SYSINFO_REQ       0x550
+#define CMD_SYSINFO_RSP       0x560
 
 #define  STREAM_LIST_SIZE		100
 
@@ -42,6 +46,14 @@
 
 
 // redefinitions of some enums
+
+
+typedef enum
+{
+  esit_ASW_version = 0,
+  esit_UpTime,
+  esit_HWID
+}eSysInfoType;
 
 typedef enum
 {
@@ -59,6 +71,7 @@ void COM_Update_10ms(void);
 
 uint8_t COM_GetNodeStatus(uint8_t nodeId);
 int16_t COM_GetNetworkStatus(void);
+uint8_t COM_GetNodeId(void);
 
 void COM_SendVariable(uint16_t varId);
 void COM_SendMessage(uint16_t cobid, uint8_t* data, uint8_t dlc);

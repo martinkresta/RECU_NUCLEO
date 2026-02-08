@@ -21,6 +21,9 @@
 #include "SENSIRION.h"
 #include "RECON.h"
 #include "LOG.h"
+#include "APP_INFO.h"
+
+
 
 // local routines
 static void ProcessMessage(s_CanRxMsg* msg);
@@ -31,6 +34,8 @@ sI2cSensor mSS;
 TIM_OC_InitTypeDef mPWM;
 
 uint8_t mFanPct = 20;
+
+static uint32_t mAppUpTime;
 
 // public methods
 void APP_Init(void)
@@ -199,7 +204,7 @@ void APP_Update_1s(void)
 		// TBD
 	}
 
-
+	mAppUpTime++;
 
 }
 
@@ -234,6 +239,23 @@ static void ProcessMessage(s_CanRxMsg* msg)
 			unixtime |= msg->data[3];
 			RTC_SetUnixTime(unixtime);
 			break;
+		case CMD_SYSINFO_REQ:
+      if(msg->data[0] == COM_GetNodeId())
+      {
+         switch (msg->data[1])
+         {
+           case esit_ASW_version:
+             COM_SendSysInfo(esit_ASW_version, (uint32_t)ASW_VERSION);
+             break;
+           case esit_UpTime:
+             COM_SendSysInfo(esit_UpTime, mAppUpTime);
+             break;
+           case esit_HWID:
+             COM_SendSysInfo(esit_HWID, (uint32_t)HWID);
+             break;
+         }
+      }
+      break;
 	}
 	return;
 }

@@ -63,9 +63,11 @@ typedef struct
 
 typedef enum
 {
-    eNS_NMT_STOPPED                = 0x00,
-    eNS_NMT_RUN				             = 0x01,
-		eNS_NMT_UNKNOWN								 = 0xFF
+    eNS_NMT_BOOTUP                 = 0x00,
+    eNS_NMT_STOPPED                = 0x04,
+    eNS_NMT_RUN                    = 0x05,
+    eNS_NMT_PREOPERATIONAL         = 0x7F,
+    eNS_NMT_UNKNOWN                = 0xFF
 }e_NodeStatus;
 
 
