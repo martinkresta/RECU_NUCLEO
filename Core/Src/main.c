@@ -23,6 +23,7 @@
 /* USER CODE BEGIN Includes */
 
 #include "APP.h"
+#include "MEMORY_MAP.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -87,6 +88,10 @@ static void MX_I2C2_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
+  SCB->VTOR = ADDRESS_OF_DEFAULT_APP_START;
+  __DSB();
+  __ISB();
+  __enable_irq();   // clears PRIMASK
 
 
   /* USER CODE END 1 */
