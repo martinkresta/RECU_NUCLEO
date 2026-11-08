@@ -49,6 +49,7 @@ void APP_Init(void)
 	VAR_Init();
 	MCAN_Init(&hcan1, THIS_NODE);
 	COM_Init(THIS_NODE);
+	VAR_EnableVars2Read();   // remote variables are read from VARS2
 	SENS_Init();
 	WDG_Init(3000);
 	RECON_Init();
