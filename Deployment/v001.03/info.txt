@@ -1,0 +1,6 @@
+DEVICE        : RECU_NUCLEO
+SW VERSION    : v001.03
+BUILD TIME    : 08.11.2026 13:02:27
+CRC           : 0x990252B7
+HWID          : 0x00000106
+SIZE          : 63872 B

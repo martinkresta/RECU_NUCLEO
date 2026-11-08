@@ -2,6 +2,14 @@
 
 Newest version first. Versions before v001.01 are not listed.
 
+## v001.03 (2026-11-08)
+
+- Task: VARS2 read layer, part B (`UHA_COMMON/tasks/vars2_read_layer.md`), branch `feature/vars2_read_recu`
+- CRC: `0x990252B7`
+
+- `VAR_EnableVars2Read()` after `COM_Init()`: the external inputs of RECON (`TEMP_KIDROOM`, `TEMP_DOWNSTAIRS`, `TEMP_OUTSIDE`, `BAT_SOC`) are now read from VARS2. When a producer stops sending (3 s for `BAT_SOC`, 9 s for temperatures) the value is flagged invalid and RECON goes to its safety configuration (supply fan 0, extract fan 10 %).
+- `UhaCommon` synced with `UHA_COMMON` (VARS, VARS2, COM).
+
 ## v001.02 (2026-11-08)
 
 - Task: VARS2 step 2 (`UHA_COMMON/tasks/elecon_vars2_tunel.md`), branch `feature/elecon_vars2_tunel`
