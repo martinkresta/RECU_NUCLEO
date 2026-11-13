@@ -9,7 +9,7 @@
 
 
 // values are parsed by python script ! do not change define
-#define  ASW_VERSION      103
+#define  ASW_VERSION      104
 
 #define  HWID             0x106
 #define  DEVICE_STR       "RECU_NUCLEO"
