@@ -51,3 +51,33 @@ void LOG_SaveToBackup(uint8_t reg, uint32_t val)
 {
   HAL_RTCEx_BKUPWrite(&hrtc, reg, val);
 }
+
+
+// Overrides the weak default in MCAN.c. Called in main context from MCAN_Update_10ms().
+// payload: 6 bytes, byte 0 = MCAN_ERR_* code (see MCAN.h). Non-master nodes queue a 0x620 eleError frame into the
+// TX ring (after a TX stall it goes out once CAN works again); the master node (ELECON) sends it over SCOM, which
+// does not depend on CAN.
+void MCAN_ReportError(const uint8_t payload[6], uint8_t beforeReset)
+{
+  uint8_t logData[8];
+
+  logData[0] = THIS_NODE;
+  logData[1] = eleError;
+  memcpy(&(logData[2]), payload, 6);
+
+  if (beforeReset)
+  {
+    LOG_SaveToBackup(LOG_BCKP_FUNC_ID, LOG_FUNC_ID_CAN_TX_STALL);
+  }
+#ifndef LOG_MASTER_NODE
+  COM_SendLogMsg(eleError, &(logData[2]));
+#else
+  {
+    uint8_t scomLogData[10];
+    scomLogData[0] = CMD_LOG_MSG >> 8;
+    scomLogData[1] = CMD_LOG_MSG & 0xFF;
+    memcpy(&(scomLogData[2]), logData, 8);
+    SCOM_SendMsg(scomLogData, 10);
+  }
+#endif
+}
