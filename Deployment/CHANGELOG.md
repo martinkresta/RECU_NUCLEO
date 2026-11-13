@@ -2,6 +2,16 @@
 
 Newest version first. Versions before v001.01 are not listed.
 
+## v001.04 (2026-11-13)
+
+- Task: VARS2 step 6b part B (`UHA_COMMON/tasks/vars2_stop_legacy_tx.md`), branch `feature/vars2_stop_legacy_tx`
+- CRC: `0xF8C3B49E`
+
+- `UhaCommon` synced with `UHA_COMMON` `d0644cc`: COM, VARS2, uha_vars_gen, and MCAN + LOG (the new COM.c needs the MCAN diagnostics; LOG provides `MCAN_ReportError()`).
+- Old variable frame `0x110+node` is no longer sent; only VARS2 `0x180+node`.
+- `CMD_VAR_VALUE` RX case removed from `APP.c`. All remote inputs of RECON (`TEMP_KIDROOM`, `TEMP_DOWNSTAIRS`, `TEMP_OUTSIDE`, `BAT_SOC`) have a VARS2 row and are read through the read layer since v001.03.
+- New on this node: MCAN CAN TX supervision (stall recovery, dead-TX self-reset, ABOM, TEC/REC monitor, `0x620` eleError reports 01..04). The CAN diagnostics SysInfo types (0x10..0x1A) are not hooked up in `APP.c` yet.
+
 ## v001.03 (2026-11-08)
 
 - Task: VARS2 read layer, part B (`UHA_COMMON/tasks/vars2_read_layer.md`), branch `feature/vars2_read_recu`
