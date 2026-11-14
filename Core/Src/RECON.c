@@ -9,7 +9,7 @@
 
 #include "RECON.h"
 #include "RTC.h"
-#include "VARS.h"
+#include "VARS2.h"
 
 
 static TIM_OC_InitTypeDef mPWM;
@@ -27,14 +27,25 @@ static uint8_t mManualControl;
 static uint8_t mAntiDryOn;
 static uint8_t mSummerCoolingMode;
 
+static sVarsRecuFans* mpFans;                     /* produced */
+static const sVarsRecuAir* mpAir;                 /* read: own sensors */
+static const sVarsTemperatures* mpTemps;          /* read: room and outside temperatures */
+static const sVarsGlobalEnergyBattery* mpBattery; /* read: SOC */
+
 
 
 
 void SetFanPct(uint8_t Fan, uint8_t pct);
 
 
-void RECON_Init(void)
+void RECON_Init(sVarsRecuFans* pFans, const sVarsRecuAir* pAir, const sVarsTemperatures* pTemps,
+                const sVarsGlobalEnergyBattery* pBattery)
 {
+  mpFans = pFans;
+  mpAir = pAir;
+  mpTemps = pTemps;
+  mpBattery = pBattery;
+
   mPWM.OCMode = TIM_OCMODE_PWM1;
   mPWM.Pulse = 200;
   mPWM.OCPolarity = TIM_OCPOLARITY_HIGH;
@@ -55,8 +66,9 @@ void RECON_Init(void)
 
 void RECON_Update_1s(void)
 {
-  int16_t fc_temp,fh_temp, upstairs_temp, downstairs_temp, outside_temp, wc_temp, co2 ,soc, wh_humidity, dumping_factor;
-  uint16_t fan_limit, invalid ;
+  float fh_temp, upstairs_temp, downstairs_temp, outside_temp, wc_temp, soc, wh_humidity;
+  int16_t co2, dumping_factor;
+  uint16_t fan_limit;
 
   mActionTimer++;
   mHystTimer++;
@@ -85,24 +97,26 @@ void RECON_Update_1s(void)
 
 
   // collect the variables
-  invalid = 0;
-  fc_temp = VAR_GetVariable(VAR_TEMP_RECU_FC,&invalid);  // input fresh air
-  fh_temp = VAR_GetVariable(VAR_TEMP_RECU_FH,&invalid);
-  wc_temp = VAR_GetVariable(VAR_TEMP_RECU_WC,&invalid);  // input fresh air
-  upstairs_temp = VAR_GetVariable(VAR_TEMP_KIDROOM,&invalid);  // indoor temperature
-  downstairs_temp = VAR_GetVariable(VAR_TEMP_DOWNSTAIRS,&invalid);  // indoor temperature
-  outside_temp = VAR_GetVariable(VAR_TEMP_OUTSIDE,&invalid);
-  soc  = VAR_GetVariable(VAR_BAT_SOC,&invalid);     // battery soc
+  fh_temp = mpAir->FreshHot_C.value;
+  wc_temp = mpAir->WasteCold_C.value;
+  upstairs_temp = mpTemps->Elecon.Kidroom_C.value;        // indoor temperature
+  downstairs_temp = mpTemps->IoboardD.Downstairs_C.value;  // indoor temperature
+  outside_temp = mpTemps->Elecon.Outside_C.value;
+  soc = mpBattery->Soc_pct.value;                         // battery soc
 
-  if(invalid)  // safety configuration in case some critical inputs are not valid
+  // safety configuration in case some critical inputs are not valid (FreshCold_C is checked but not used)
+  if(!(mpAir->FreshCold_C.valid && mpAir->FreshHot_C.valid && mpAir->WasteCold_C.valid &&
+       mpTemps->Elecon.Kidroom_C.valid && mpTemps->IoboardD.Downstairs_C.valid &&
+       mpTemps->Elecon.Outside_C.valid && mpBattery->Soc_pct.valid))
   {
     SetFanPct(FAN_IN,0);
     SetFanPct(FAN_OUT,10);
     return ;
   }
 
-  co2 = VAR_GetVariable(VAR_CO2_RECU, &invalid);
-  wh_humidity = VAR_GetVariable(VAR_RH_RECU_WH, &invalid);
+  // validity of CO2 and humidity is not checked (as before): the last values are used
+  co2 = (int16_t)mpAir->Co2_ppm.value;
+  wh_humidity = mpAir->WasteHotRh_pct.value;
 
 
   // check SOC - low power configuration.
@@ -169,7 +183,7 @@ void RECON_Update_1s(void)
 
   if(mSummerCoolingMode == 1)  // summer mode: we don't care about co2 and humidity, we just want to cool the interior NOTE: SUMMER BYPASS FLAP HAS TO BE OPEN!
   {
-    uint16_t indoor_temp = upstairs_temp;
+    float indoor_temp = upstairs_temp;
     if(downstairs_temp > indoor_temp)
     {
       indoor_temp = downstairs_temp;
@@ -181,9 +195,9 @@ void RECON_Update_1s(void)
     }
     else
     {
-      if(indoor_temp >= INTERIEROR_COOLING_ENABLE_TEMP)  // limit cooling only to when indoor is not too cold
+      if(indoor_temp >= INTERIEROR_COOLING_ENABLE_TEMP_C)  // limit cooling only to when indoor is not too cold
       {
-        if (outside_temp < (indoor_temp + 10) &&  mHystTimer > TIME_HYST_DELAY_S)
+        if (outside_temp < (indoor_temp + COOLING_OUTSIDE_MARGIN_C) &&  mHystTimer > TIME_HYST_DELAY_S)
         {
           mFanOutPct = 35;
           mFanInPct = 35;
@@ -202,7 +216,7 @@ void RECON_Update_1s(void)
   if(mSummerCoolingMode == 0)
   {
     // now we can adjust ratio of the two fans and also apply the antifreeze feature if needed
-    if(wc_temp > (ANTIFREEZE_TEMP_OUT_C10 + ANTIFREEZE_HYST_C10))  // no risk of freezink -> full ventilataion
+    if(wc_temp > (ANTIFREEZE_TEMP_OUT_C + ANTIFREEZE_HYST_C))  // no risk of freezink -> full ventilataion
     {
       mFanOutPct = mFansPct;
 
@@ -218,9 +232,9 @@ void RECON_Update_1s(void)
       if(mFanOutPct != 0 && mFanOutPct < FAN_MIN) mFanOutPct = FAN_MIN;
 
     }
-    else if(wc_temp > ANTIFREEZE_TEMP_OUT_C10) // mitigating risk of freezing - reduced fresh(cold) air fan
+    else if(wc_temp > ANTIFREEZE_TEMP_OUT_C) // mitigating risk of freezing - reduced fresh(cold) air fan
     {
-      dumping_factor = ((wc_temp - ANTIFREEZE_TEMP_OUT_C10) / 10);
+      dumping_factor = (int16_t)(wc_temp - ANTIFREEZE_TEMP_OUT_C);   // whole degC above the limit (0..3)
       mFanOutPct = mFansPct;
       mFanInPct = (mFansPct * (5 + dumping_factor)) / 10;  // input fan limted down to 50% of the output fan
 
@@ -272,7 +286,7 @@ void RECON_Update_1s(void)
 
   // safety Anti freeze feature  which cannot be overwritten by any control mode
 
-  if(wc_temp < ANTIFREEZE_TEMP_OUT_C10)  // less then 4.0 C  // high risk of freezing.  Turn off the input fan completely
+  if(wc_temp < ANTIFREEZE_TEMP_OUT_C)  // less then 4.0 C  // high risk of freezing.  Turn off the input fan completely
   {
     mFanOutPct = 10;  // minimal output fan
     mFanInPct = 0;  // stopped input fan
@@ -307,7 +321,7 @@ void SetFanPct(uint8_t Fan, uint8_t pct)
       Error_Handler();
     }
     HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
-    VAR_SetVariable(VAR_RECU_FAN_F, pct,1);
+    VarSet(&mpFans->Fresh_pct, (float)pct, 1);
   }
   else if(Fan == FAN_OUT)
   {
@@ -317,7 +331,7 @@ void SetFanPct(uint8_t Fan, uint8_t pct)
       Error_Handler();
     }
     HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
-    VAR_SetVariable(VAR_RECU_FAN_W, pct,1);
+    VarSet(&mpFans->Waste_pct, (float)pct, 1);
   }
 
 

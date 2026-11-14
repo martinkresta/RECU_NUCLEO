@@ -13,7 +13,7 @@
 #include "UI.h"
 #include "OW.h"
 #include "TEMP.h"
-#include "VARS.h"
+#include "VARS2.h"   /* Vars2: APP.c wires the groups to the modules */
 #include "MCAN.h"
 #include "COM.h"
 #include "RTC.h"
@@ -46,13 +46,11 @@ void APP_Init(void)
 	Scheduler_Init();
 	OW_Init();
 	TEMP_Init();
-	VAR_Init();
 	MCAN_Init(&hcan1, THIS_NODE);
 	COM_Init(THIS_NODE);
-	VAR_EnableVars2Read();   // remote variables are read from VARS2
 	SENS_Init();
 	WDG_Init(3000);
-	RECON_Init();
+	RECON_Init(&Vars2.Recu.Fans, &Vars2.Recu.Air, &Vars2.Temperatures, &Vars2.GlobalEnergy.Battery);
 
 
   /*Assign pins for onboard UI  */
@@ -93,10 +91,9 @@ void APP_Init(void)
 
 	// assign TEMP sensors on OW1 :
 	// default sensor assignment:
-	TEMP_AssignSensor(T305, VAR_TEMP_RECU_WC, 0);
-	//TEMP_AssignSensor(T309, VAR_TEMP_RECU_WH, 0);
-	TEMP_AssignSensor(T115, VAR_TEMP_RECU_FC, 0);
-	//TEMP_AssignSensor(T116, VAR_TEMP_RECU_FH, 0);
+	TEMP_AssignSensor(T305, VID_TEMP_RECU_WC_C, 0);
+	TEMP_AssignSensor(T115, VID_TEMP_RECU_FC_C, 0);
+	// WH and FH temperatures come from the SHT4x sensors below
 
 
 	/* assign SENSIRION sensors  */
@@ -106,22 +103,22 @@ void APP_Init(void)
   mSS.BusHandle = &hi2c1;
   mSS.Id = 1;
   mSS.Type = st_SDP810_125;
-  mSS.VarId_1 = VAR_DP_RECU_F;
+  mSS.VarId_1 = VID_DP_RECU_F;
   SENS_AddSensor(mSS);
 
   // CO2 waste hot
   mSS.BusHandle = &hi2c1;
   mSS.Id = 2;
   mSS.Type = st_SCD4x;
-  mSS.VarId_1 = VAR_CO2_RECU;
+  mSS.VarId_1 = VID_CO2_RECU;
   SENS_AddSensor(mSS);
 
   // RH + Temp waste hot
   mSS.BusHandle = &hi2c1;
   mSS.Id = 4;
   mSS.Type = st_SHT4x;
-  mSS.VarId_1 = VAR_TEMP_RECU_WH;
-  mSS.VarId_2 = VAR_RH_RECU_WH;
+  mSS.VarId_1 = VID_TEMP_RECU_WH_C;
+  mSS.VarId_2 = VID_RH_RECU_WASTE;
   SENS_AddSensor(mSS);
 
 
@@ -130,7 +127,7 @@ void APP_Init(void)
   mSS.BusHandle = &hi2c2;
   mSS.Id = 3;
   mSS.Type = st_SDP810_125;
-  mSS.VarId_1 = VAR_DP_RECU_W;
+  mSS.VarId_1 = VID_DP_RECU_WASTE;
   SENS_AddSensor(mSS);
 
 
@@ -138,38 +135,13 @@ void APP_Init(void)
   mSS.BusHandle = &hi2c2;
   mSS.Id = 0;
   mSS.Type = st_SHT4x;
-  mSS.VarId_1 = VAR_TEMP_RECU_FH;
-  mSS.VarId_2 = VAR_RH_RECU_FH;
+  mSS.VarId_1 = VID_TEMP_RECU_FH_C;
+  mSS.VarId_2 = VID_RH_RECU_FH;
   SENS_AddSensor(mSS);
 
 
 
-	/* Configure CAN streamed variables */
-
-	COM_AddStreamedVariable(VAR_TEMP_RECU_WC, 3000);
-	COM_AddStreamedVariable(VAR_TEMP_RECU_WH, 3000);
-	COM_AddStreamedVariable(VAR_TEMP_RECU_FC, 3000);
-	COM_AddStreamedVariable(VAR_TEMP_RECU_FH, 3000);
-
-	COM_AddStreamedVariable(VAR_RH_RECU_FH, 3000);
-	COM_AddStreamedVariable(VAR_RH_RECU_WH, 3000);
-
-	COM_AddStreamedVariable(VAR_CO2_RECU, 3000);
-  COM_AddStreamedVariable(VAR_DP_RECU_F, 3000);
-  COM_AddStreamedVariable(VAR_DP_RECU_W, 3000);
-
-
-  COM_AddStreamedVariable(VAR_RECU_FAN_F, 3000);
-  COM_AddStreamedVariable(VAR_RECU_FAN_W, 3000);
-  //COM_AddStreamedVariable(VAR_CURR_RECU_A, 3000);
-
-
-
-	/*configure elmeters*/
-
-//	ELM_AddMeter(ELM_OTHER, EL1_Pin, VAR_CONS_OTHER_WH);
-
-
+	/* CAN: VARS2 sends this node's variables (Recu.Air, Recu.Fans) by the YAML period_ms */
 }
 
 void APP_Start(void)
