@@ -2,6 +2,21 @@
 
 Newest version first. Versions before v001.01 are not listed.
 
+## v001.05 (2026-11-14)
+
+- Task: VARS2 direct access part B (`UHA_COMMON/tasks/vars2_direct_access.md`), branch `feature/vars2_direct_access`
+- CRC: `0xE65E9036`
+
+- `UhaCommon/` synced with `UHA_COMMON` `main` (direct access part A + METEO).
+- Variables live in `Vars2` (value in physical units + valid flag); the old `Vars[]` / `VAR_*` API is no longer used here.
+- RECON reads its sensors (`Recu.Air`), the room / outside temperatures (`Temperatures`) and the battery SOC
+  (`GlobalEnergy.Battery`) directly and writes the fan levels to `Recu.Fans`. Temperatures and thresholds in degC
+  (were 0.1 degC integers); same safety fallback when one of the 7 inputs is invalid.
+- TEMP and SENSIRION sensors configured by `VID_*`.
+- VARS2 sends this node's variables by the YAML `period_ms` (same 11 variables at 3 s as the removed
+  `COM_AddStreamedVariable()` list). CAN frames unchanged.
+- Flash -0.3 KB, RAM -1.7 KB.
+
 ## v001.04 (2026-11-13)
 
 - Task: VARS2 step 6b part B (`UHA_COMMON/tasks/vars2_stop_legacy_tx.md`), branch `feature/vars2_stop_legacy_tx`
