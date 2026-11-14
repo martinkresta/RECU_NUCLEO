@@ -11,6 +11,7 @@
 
 #include "main.h"
 #include "com.h"
+#include "uha_vars_gen.h"   /* Vars2 group types */
 
 #define  CO2_MAX_TARGET     1000  // 1000ppm
 #define  CO2_BEST_TARGET    800
@@ -25,12 +26,13 @@
 #define  RH_ANTI_DRY_HIST   2
 
 
-#define  INTERIEROR_COOLING_ENABLE_TEMP  210  // 21C
+#define  INTERIEROR_COOLING_ENABLE_TEMP_C  21.0f  // degC
+#define  COOLING_OUTSIDE_MARGIN_C  1.0f  // degC: summer cooling while outside < indoor + margin
 
-#define  ANTIFREEZE_TEMP_OUT_C10  40  //4C
+#define  ANTIFREEZE_TEMP_OUT_C  4.0f  // degC
 
 
-#define  ANTIFREEZE_HYST_C10    40  // 4C
+#define  ANTIFREEZE_HYST_C    4.0f  // degC
 
 #define  LOW_SOC_OFF_THRESHOLD  30
 #define  LOW_SOC_ECO_THRESHOLD  85
@@ -54,7 +56,10 @@ typedef enum
   errm_MaxUnderpressure
 }eRemoteReqMode;*/
 
-void RECON_Init(void);
+/* pFans: produced group (Vars2.Recu.Fans); read: own sensors (Vars2.Recu.Air), room and
+ * outside temperatures (Vars2.Temperatures), battery SOC (Vars2.GlobalEnergy.Battery) */
+void RECON_Init(sVarsRecuFans* pFans, const sVarsRecuAir* pAir, const sVarsTemperatures* pTemps,
+                const sVarsGlobalEnergyBattery* pBattery);
 
 void RECON_Update_1s(void);
 
