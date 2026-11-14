@@ -45,6 +45,8 @@ Automatic fan speed control for the house heat recovery ventilation (HRV) unit. 
 ---
 
 ## Published VARS (CAN stream, every 3s)
+
+VARS2 groups produced here: `Recu.Air` (TEMP + SENSIRION by id), `Recu.Fans` (RECON); reads `Temperatures`, `GlobalEnergy.Battery`. Ids, periods and producers: `UHA_COMMON/VarDefs/uha_vars.yaml` (VARS2 sends them by `period_ms`, no stream list). The `VAR_*` names below are the YAML `legacy` names.
 VAR_TEMP_RECU_FC/FH/WC/WH, VAR_RH_RECU_FH/WH, VAR_CO2_RECU, VAR_DP_RECU_F/W, VAR_RECU_FAN_F, VAR_RECU_FAN_W
 
 ---
