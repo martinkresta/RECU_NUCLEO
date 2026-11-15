@@ -2,6 +2,20 @@
 
 Newest version first. Versions before v001.01 are not listed.
 
+## v002.01 (2026-11-15)
+
+- Task: VARS2 states step 2b (`UHA_COMMON/tasks/states_nodes.md`), branch `feature/vars2-states-2b`
+  (UHA_COMMON + this project); report `UHA_COMMON/tasks/states_nodes_report.md`
+- CRC: `0x0DCEC5AA`
+
+- New VARS2 group `States.Recu` (ids 510–511), `send: on_change` (on change, min 1 s apart, + every 20 s).
+- Remote request mode (`mRemoteMode`) as enum `RecuRemoteMode`.
+- Active fan limitation as enum `RecuLimit`: set where each `RECON` branch is taken, the highest priority of the
+  cycle wins (InvalidInputs > BatteryOff > AntifreezeStop > AntifreezeReduced > AntiDry > Eco > None);
+  written at every exit of `RECON_Update_1s()`. `RECON_Init()` gets the states group pointer.
+- Shared code: VARS2 `send: on_change` (step 2a), new YAML rows of all nodes. No change of control behaviour.
+- Flash +1.4 KB, RAM +0.5 KB (since v002.00).
+
 ## v001.05 (2026-11-14)
 
 - Task: VARS2 direct access part B (`UHA_COMMON/tasks/vars2_direct_access.md`), branch `feature/vars2_direct_access`

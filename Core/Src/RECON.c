@@ -28,6 +28,8 @@ static uint8_t mAntiDryOn;
 static uint8_t mSummerCoolingMode;
 
 static sVarsRecuFans* mpFans;                     /* produced */
+static sVarsStatesRecu* mpStates;                 /* produced: remote mode + active limitation (VARS2 send: on_change) */
+static eRecuLimit mLimit;                         /* highest-priority limitation taken in this RECON_Update_1s() */
 static const sVarsRecuAir* mpAir;                 /* read: own sensors */
 static const sVarsTemperatures* mpTemps;          /* read: room and outside temperatures */
 static const sVarsGlobalEnergyBattery* mpBattery; /* read: SOC */
@@ -38,10 +40,30 @@ static const sVarsGlobalEnergyBattery* mpBattery; /* read: SOC */
 void SetFanPct(uint8_t Fan, uint8_t pct);
 
 
-void RECON_Init(sVarsRecuFans* pFans, const sVarsRecuAir* pAir, const sVarsTemperatures* pTemps,
-                const sVarsGlobalEnergyBattery* pBattery)
+/* limitation branch taken: keep the highest priority of this cycle (eRecuLimit: higher number = higher priority) */
+static void Limit(eRecuLimit limit)
+{
+  if (limit > mLimit)
+  {
+    mLimit = limit;
+  }
+}
+
+/* states for VARS2, written at every exit of RECON_Update_1s() */
+static void PublishStates(void)
+{
+  mpStates->RemoteMode.value = (int32_t)mRemoteMode;
+  mpStates->Limit.value = (int32_t)mLimit;
+}
+
+
+void RECON_Init(sVarsRecuFans* pFans, sVarsStatesRecu* pStates, const sVarsRecuAir* pAir,
+                const sVarsTemperatures* pTemps, const sVarsGlobalEnergyBattery* pBattery)
 {
   mpFans = pFans;
+  mpStates = pStates;
+  mLimit = RecuLimit_None;
+  VARS2_SetGroupValid(mpStates, 1);   // states valid from now on (values: PublishStates() every second)
   mpAir = pAir;
   mpTemps = pTemps;
   mpBattery = pBattery;
@@ -72,6 +94,7 @@ void RECON_Update_1s(void)
 
   mActionTimer++;
   mHystTimer++;
+  mLimit = RecuLimit_None;
 
 
   sDateTime now = RTC_GetTime();
@@ -111,6 +134,8 @@ void RECON_Update_1s(void)
   {
     SetFanPct(FAN_IN,0);
     SetFanPct(FAN_OUT,10);
+    Limit(RecuLimit_InvalidInputs);
+    PublishStates();
     return ;
   }
 
@@ -124,12 +149,15 @@ void RECON_Update_1s(void)
   {
     SetFanPct(FAN_IN,0);
     SetFanPct(FAN_OUT,10);
+    Limit(RecuLimit_BatteryOff);
+    PublishStates();
     return ;
   }
 
   if(soc < LOW_SOC_ECO_THRESHOLD && fan_limit > FAN_MAX_DAY_ECO)
   {
     fan_limit = FAN_MAX_DAY_ECO;
+    Limit(RecuLimit_Eco);
   }
 
 
@@ -150,6 +178,7 @@ void RECON_Update_1s(void)
     if (mAntiDryOn == 1)
     {
       fan_limit = FAN_ANTI_DRY;  // limit the fans to FAN_ANTI_DRY.  (The air humidity has higher prio than CO2 concentration)
+      Limit(RecuLimit_AntiDry);
     }
     else
     {
@@ -235,6 +264,7 @@ void RECON_Update_1s(void)
     else if(wc_temp > ANTIFREEZE_TEMP_OUT_C) // mitigating risk of freezing - reduced fresh(cold) air fan
     {
       dumping_factor = (int16_t)(wc_temp - ANTIFREEZE_TEMP_OUT_C);   // whole degC above the limit (0..3)
+      Limit(RecuLimit_AntifreezeReduced);
       mFanOutPct = mFansPct;
       mFanInPct = (mFansPct * (5 + dumping_factor)) / 10;  // input fan limted down to 50% of the output fan
 
@@ -290,11 +320,13 @@ void RECON_Update_1s(void)
   {
     mFanOutPct = 10;  // minimal output fan
     mFanInPct = 0;  // stopped input fan
+    Limit(RecuLimit_AntifreezeStop);
   }
 
 
   SetFanPct(FAN_IN,mFanInPct);
   SetFanPct(FAN_OUT,mFanOutPct);
+  PublishStates();
 
 }
 
