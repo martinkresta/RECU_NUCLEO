@@ -50,7 +50,7 @@ void APP_Init(void)
 	COM_Init(THIS_NODE);
 	SENS_Init();
 	WDG_Init(3000);
-	RECON_Init(&Vars2.Recu.Fans, &Vars2.Recu.Air, &Vars2.Temperatures, &Vars2.GlobalEnergy.Battery);
+	RECON_Init(&Vars2.Recu.Fans, &Vars2.States.Recu, &Vars2.Recu.Air, &Vars2.Temperatures, &Vars2.GlobalEnergy.Battery);
 
 
   /*Assign pins for onboard UI  */

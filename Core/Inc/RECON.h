@@ -56,10 +56,10 @@ typedef enum
   errm_MaxUnderpressure
 }eRemoteReqMode;*/
 
-/* pFans: produced group (Vars2.Recu.Fans); read: own sensors (Vars2.Recu.Air), room and
+/* pFans, pStates: produced groups (Vars2.Recu.Fans, Vars2.States.Recu); read: own sensors (Vars2.Recu.Air), room and
  * outside temperatures (Vars2.Temperatures), battery SOC (Vars2.GlobalEnergy.Battery) */
-void RECON_Init(sVarsRecuFans* pFans, const sVarsRecuAir* pAir, const sVarsTemperatures* pTemps,
-                const sVarsGlobalEnergyBattery* pBattery);
+void RECON_Init(sVarsRecuFans* pFans, sVarsStatesRecu* pStates, const sVarsRecuAir* pAir,
+                const sVarsTemperatures* pTemps, const sVarsGlobalEnergyBattery* pBattery);
 
 void RECON_Update_1s(void);
 
