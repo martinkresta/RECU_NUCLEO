@@ -22,6 +22,7 @@
 #include "RECON.h"
 #include "LOG.h"
 #include "APP_INFO.h"
+#include "CMD.h"
 
 
 
@@ -180,6 +181,24 @@ void APP_Update_1s(void)
 	mAppUpTime++;
 
 }
+
+// commands for this node (CMD_spec.md, CAN 0x205): RECON setpoints only, clamped in the RECON setters;
+// feedback = Vars2.States.Recu (PublishStates). The remote modes stay on 0x140 (TECHM, stove).
+void APP_OnCommand(eCmdId id, float value)
+{
+  switch (id)
+  {
+    case CMDID_RECU_CO2_SETPOINT:
+      RECON_SetCo2Setpoint(value);
+      break;
+    case CMDID_RECU_ANTIDRY_RH:
+      RECON_SetAntiDryRh(value);
+      break;
+    default:
+      break;
+  }
+}
+
 
 static void ProcessMessage(s_CanRxMsg* msg)
 {

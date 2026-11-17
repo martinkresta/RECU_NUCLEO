@@ -8,6 +8,7 @@
 
 
 #include "RECON.h"
+#include "CMD.h"   /* CMD_Clamp(), CMD_RECU_*_MIN/MAX (uha_cmds_gen.h) */
 #include "RTC.h"
 #include "VARS2.h"
 
@@ -22,6 +23,9 @@ static uint32_t mActionTimer;
 static uint32_t mHystTimer;
 static uint32_t mRemoteRequestTimer;
 static eRecuRemoteReqMode mRemoteMode;
+
+static int16_t mCo2Setpoint_ppm;   // CO2 at which the fans start to rise (was the constant 600), settable
+static float mAntiDryRh_pct;       // anti dry limit on at RH <= this (was RH_ANTI_DRY), settable
 
 static uint8_t mManualControl;
 static uint8_t mAntiDryOn;
@@ -54,6 +58,8 @@ static void PublishStates(void)
 {
   mpStates->RemoteMode.value = (int32_t)mRemoteMode;
   mpStates->Limit.value = (int32_t)mLimit;
+  mpStates->Co2Setpoint_ppm.value = (uint32_t)mCo2Setpoint_ppm;
+  mpStates->AntiDryRh_pct.value = mAntiDryRh_pct;
 }
 
 
@@ -84,6 +90,8 @@ void RECON_Init(sVarsRecuFans* pFans, sVarsStatesRecu* pStates, const sVarsRecuA
   mAntiDryOn = 0;
   mRemoteMode = errm_AutoControl;
   mSummerCoolingMode = 0;
+  mCo2Setpoint_ppm = RECON_DEF_CO2_SETPOINT_PPM;
+  mAntiDryRh_pct = RH_ANTI_DRY;
 }
 
 void RECON_Update_1s(void)
@@ -164,12 +172,12 @@ void RECON_Update_1s(void)
   if(mManualControl == 0)  // automatic control
   {
     // select control mode (co2 based or anti-dry  limitation)
-    if((mAntiDryOn == 0) && wh_humidity <= RH_ANTI_DRY) // activate anti dry
+    if((mAntiDryOn == 0) && wh_humidity <= mAntiDryRh_pct) // activate anti dry
     {
       mAntiDryOn = 1;
 
     }
-    else if((mAntiDryOn == 1) && wh_humidity > RH_ANTI_DRY + RH_ANTI_DRY_HIST) // deactivate anti dry feature and check CO2
+    else if((mAntiDryOn == 1) && wh_humidity > mAntiDryRh_pct + RH_ANTI_DRY_HIST) // deactivate anti dry feature and check CO2
     {
       mAntiDryOn = 0;
     }
@@ -186,9 +194,9 @@ void RECON_Update_1s(void)
     }
 
     // optimal Fan PWM is calculated with respect to CO2 concentration.
-    if(co2 > 610)
+    if(co2 > mCo2Setpoint_ppm + 10)
     {
-      mFansPct = (co2 - 600) / 10;
+      mFansPct = (co2 - mCo2Setpoint_ppm) / 10;
     }
     else
     {
@@ -328,6 +336,19 @@ void RECON_Update_1s(void)
   SetFanPct(FAN_OUT,mFanOutPct);
   PublishStates();
 
+}
+
+
+/* setpoint setters (command channel, APP_OnCommand): the only writers besides RECON_Init(); clamped to the YAML
+ * command limits, used from the next RECON_Update_1s(). RAM only (defaults after reset). */
+void RECON_SetCo2Setpoint(float co2_ppm)
+{
+  mCo2Setpoint_ppm = (int16_t)(CMD_Clamp(co2_ppm, CMD_RECU_CO2_SETPOINT_MIN, CMD_RECU_CO2_SETPOINT_MAX) + 0.5f);
+}
+
+void RECON_SetAntiDryRh(float rh_pct)
+{
+  mAntiDryRh_pct = CMD_Clamp(rh_pct, CMD_RECU_ANTIDRY_RH_MIN, CMD_RECU_ANTIDRY_RH_MAX);
 }
 
 

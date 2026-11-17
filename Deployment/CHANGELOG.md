@@ -2,6 +2,21 @@
 
 Newest version first. Versions before v001.01 are not listed.
 
+## v002.02 (2026-11-17)
+
+- Task: commands step 3c (`UHA_COMMON/tasks/cmd_inverters_recu.md`, mapping agreed in `UHA_COMMON/tasks/cmd_inverters_recu_report.md`),
+  branch `feature/cmd-3c` (UHA_COMMON + ASW_ELECON + ASW_ELECON_D + ASW_RECU_NUCLEO)
+- CRC: `0xB7D6275B`
+
+- Commands on CAN `0x205` (`APP_OnCommand()`): `CMD_RECU_CO2_SETPOINT` (501, 400..1200 ppm) and
+  `CMD_RECU_ANTIDRY_RH` (502, 20..70 %). No mode commands (the remote modes stay on `0x140` from TECHM).
+- RECON: the CO2 start point (was the constant 600: fans `(CO2 - 600) / 10` % above 610 ppm) and the anti dry RH
+  limit (was `RH_ANTI_DRY` 50 %, hysteresis 2 % unchanged) are variables with setters `RECON_SetCo2Setpoint()` /
+  `RECON_SetAntiDryRh()` (clamp to `CMD_RECU_*_MIN/_MAX`), used from the next `RECON_Update_1s()`. Defaults = the
+  old values, so nothing changes without a command. RAM only.
+- New states `ST_RECU_CO2_SETPOINT` (512), `ST_RECU_ANTIDRY_RH` (513) in `States.Recu` (`PublishStates()`).
+- Flash +444 B, RAM +40 B (since the 3a-state build of v002.01).
+
 ## v002.01 (2026-11-15)
 
 - Task: VARS2 states step 2b (`UHA_COMMON/tasks/states_nodes.md`), branch `feature/vars2-states-2b`

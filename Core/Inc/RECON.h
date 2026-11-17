@@ -22,7 +22,8 @@
 #define  FAN_MAX_DAY_ECO    35
 #define  FAN_MIN            20 // 10
 #define  FAN_ANTI_DRY       20 // 15
-#define  RH_ANTI_DRY        50
+#define  RH_ANTI_DRY        50   // default of the anti dry RH limit (settable, RECON_SetAntiDryRh)
+#define  RECON_DEF_CO2_SETPOINT_PPM  600   // default CO2 where the fans start to rise (settable, RECON_SetCo2Setpoint)
 #define  RH_ANTI_DRY_HIST   2
 
 
@@ -64,6 +65,9 @@ void RECON_Init(sVarsRecuFans* pFans, sVarsStatesRecu* pStates, const sVarsRecuA
 void RECON_Update_1s(void);
 
 void RECON_RemoteRequest(eRecuRemoteReqMode mode, uint16_t duration_s);
+/* command channel setpoints (clamped to CMD_RECU_*_MIN/MAX), used from the next RECON_Update_1s() */
+void RECON_SetCo2Setpoint(float co2_ppm);
+void RECON_SetAntiDryRh(float rh_pct);
 
 
 #endif /* INC_RECON_H_ */
